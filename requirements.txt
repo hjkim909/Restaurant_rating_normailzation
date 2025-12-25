@@ -1,0 +1,7 @@
+streamlit
+folium
+streamlit-folium
+requests
+pandas
+python-dotenv
+# konlpy # Optional for Phase 2
