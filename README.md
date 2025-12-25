@@ -13,7 +13,17 @@
 - **Language**: Python 3.9+
 - **Frontend**: Streamlit
 - **API**: Naver Search API (Local)
-- **Deployment**: [Streamlit Community Cloud](DEPLOYMENT.md)
+- **Deployment**: [Streamlit Community Cloud](docs/DEPLOYMENT.md)
+
+## 📂 프로젝트 구조
+```bash
+.
+├── app.py # 메인 애플리케이션 (Streamlit)
+├── backend/ # 핵심 로직 (API, 데이터 처리)
+├── docs/ # 문서 (기획서, 배포 가이드 등)
+├── scripts/ # 테스트 및 유틸리티 스크립트
+└── requirements.txt # 의존성 패키지
+```
 
 ## 🚀 시작하기
 
@@ -33,7 +43,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. API 키 설정
-네이버 검색 API 키가 필요합니다. [네이버 개발자 센터](https://developers.naver.com/)에서 발급받으세요. (`Naver_API_Guide.md` 참조)
+네이버 검색 API 키가 필요합니다. [네이버 개발자 센터](https://developers.naver.com/)에서 발급받으세요. (`docs/Naver_API_Guide.md` 참조)
 
 `.env` 파일을 생성하고 키를 입력합니다:
 ```bash
