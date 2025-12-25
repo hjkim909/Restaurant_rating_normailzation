@@ -107,19 +107,20 @@ class NaverPlaceAPI:
                 break
                 
         return all_items
-    def search_places(self, query, display=5, search_mode='popular'):
+    def search_places(self, query, display=5, search_mode='popular', force_refresh=False):
         """
         Search for places with persistent caching and deduplication.
         Uses 'Category Explosion' strategy: querying many specific keywords in parallel
         to overcome the API's 'display=5' per request limit.
+        force_refresh: If True, ignore existing cache and fetch fresh data.
         """
         import concurrent.futures
         
         # Construct Cache Key
         cache_key = f"{query}_{search_mode}_v3" # v3 for clean concurrent strategy
         
-        # 1. Check File Cache
-        if cache_key in self.file_cache:
+        # 1. Check File Cache (Skip if force_refresh is True)
+        if not force_refresh and cache_key in self.file_cache:
             cached_entry = self.file_cache[cache_key]
             if time.time() - cached_entry['timestamp'] < 86400:
                 print(f"✅ Local Cache Hit for '{cache_key}'")

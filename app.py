@@ -133,7 +133,8 @@ def main():
         with st.spinner(f"📡 {location} 주변 식당 스캔 중... (모드: {'숨은 맛집' if use_hidden_gem else '인기 맛집'})"):
             if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
                 # API handles file caching internally now
-                raw_data = api.search_places(query, display=50, search_mode=current_mode) # display param is internally overridden to 100 now
+                # Pass need_refresh to force API to ignore file cache
+                raw_data = api.search_places(query, display=50, search_mode=current_mode, force_refresh=need_refresh) 
                 items = raw_data['items'] if raw_data else []
             else:
                 items = MOCK_DATA
