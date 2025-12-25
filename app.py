@@ -94,37 +94,57 @@ def main():
             default=[]
         )
         
-        if st.button("🔄 데이터 다시 불러오기", type="secondary"):
-            st.cache_data.clear()
-
     # Main Logic
     # 1. Fetch Data
     query = f"{location} 맛집"
     if category_options:
         query = f"{location} {' '.join(category_options)} 맛집"
 
-    api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
+    # Initialize session state for data persistence
+    if 'processed_results' not in st.session_state:
+        st.session_state.processed_results = []
+    if 'top_menus' not in st.session_state:
+        st.session_state.top_menus = []
+    if 'last_query' not in st.session_state:
+        st.session_state.last_query = ""
+
+    # Clear cache only if requested explicitly or implicitly by changing options
+    need_refresh = False
+    if st.button("🔄 데이터 다시 불러오기", type="secondary"):
+        st.cache_data.clear() # Clear streamlit cache
+        need_refresh = True
     
-    with st.spinner(f"📡 {location} 주변 식당 스캔 중... (최초 1회만 느려요)"):
-        if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
-            # API handles file caching internally now
-            raw_data = api.search_places(query, display=50)
-            items = raw_data['items'] if raw_data else []
-        else:
-            items = MOCK_DATA
-            if not CLIENT_ID: st.warning("데모 모드: API 키 설정을 확인해주세요.")
+    # Check if we need to fetch new data (Query changed or Refresh requested)
+    if query != st.session_state.last_query or need_refresh or not st.session_state.processed_results:
+        st.session_state.last_query = query
+        st.session_state.selected_menu = None # Reset selection on new search
         
-        processor = DataProcessor()
-        # Process every time to ensure menu shuffling works on cached data too
-        processed_results = processor.process_places(items)
+        api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
+        
+        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (최초 1회만 느려요)"):
+            if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
+                # API handles file caching internally now
+                raw_data = api.search_places(query, display=50) # display param is internally overridden to 100 now
+                items = raw_data['items'] if raw_data else []
+            else:
+                items = MOCK_DATA
+                if not CLIENT_ID: st.warning("데모 모드: API 키 설정을 확인해주세요.")
+            
+            processor = DataProcessor()
+            st.session_state.processed_results = processor.process_places(items)
+            
+            # 2. Extract Menus (Only once per fetch)
+            recommender = MenuRecommender()
+            st.session_state.top_menus = recommender.extract_top_menus(st.session_state.processed_results, top_n=15)
+
+    
+    # Use cached data
+    processed_results = st.session_state.processed_results
     
     # Show Cache Stats (Simple indicator)
-    if os.path.exists("restaurant_cache.json"):
-        st.caption(f"💾 로컬 데이터베이스 사용 중 ({len(items)}개 식당 저장됨)")
-    
-    # 2. Extract Menus
-    recommender = MenuRecommender()
-    top_menus = recommender.extract_top_menus(processed_results, top_n=15)
+    if processed_results:
+        st.caption(f"💾 로컬 데이터베이스 사용 중 ({len(processed_results)}개 식당 저장됨)")
+
     
     # State management for selection
     if 'selected_menu' not in st.session_state:
@@ -136,15 +156,15 @@ def main():
     with col_rand:
         st.markdown("### 🎲 못 고르겠다면?")
         if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
-            if top_menus:
-                st.session_state.selected_menu = random.choice(top_menus)
+            if st.session_state.top_menus:
+                st.session_state.selected_menu = random.choice(st.session_state.top_menus)
             else:
                 st.error("추천할 메뉴 데이터가 부족해요.")
 
     with col_chips:
         st.markdown(f"### 🔥 {location} 인기 메뉴")
         # Display chips nicely
-        if top_menus:
+        if st.session_state.top_menus:
             # CSS hack for horizontal scroll or nice wrapping chips
             st.markdown("""
             <style>
@@ -154,7 +174,8 @@ def main():
             
             # Simple flow layout using columns is hard, let's use a specialized row approach or just simple buttons
             # Grouping buttons in rows of 5
-            rows = [top_menus[i:i + 5] for i in range(0, len(top_menus), 5)]
+            menus_to_show = st.session_state.top_menus
+            rows = [menus_to_show[i:i + 5] for i in range(0, len(menus_to_show), 5)]
             for row in rows:
                 cols = st.columns(len(row))
                 for i, menu in enumerate(row):
