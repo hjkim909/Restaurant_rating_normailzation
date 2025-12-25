@@ -68,20 +68,24 @@ class NaverPlaceAPI:
     #     params_str = str(sorted(params.items()))
     #     return f"{endpoint}:{params_str}"
 
-    def search_places(self, query, display=5):
+    def search_places(self, query, display=5, search_mode='popular'):
         """
         Search for places with persistent caching and deduplication.
+        search_mode: 'popular' (review count) or 'random' (similarity + variety)
         """
         
+        # Construct Cache Key
+        cache_key = f"{query}_{search_mode}"
+        
         # 1. Check File Cache
-        if query in self.file_cache:
-            cached_entry = self.file_cache[query]
+        if cache_key in self.file_cache:
+            cached_entry = self.file_cache[cache_key]
             # Expire after 24 hours (86400 seconds)
             if time.time() - cached_entry['timestamp'] < 86400:
-                print(f"✅ Local Cache Hit for '{query}'")
+                print(f"✅ Local Cache Hit for '{cache_key}'")
                 return {"items": cached_entry['items']}
             else:
-                print(f"⚠️ Cache expired for '{query}', re-fetching...")
+                print(f"⚠️ Cache expired for '{cache_key}', re-fetching...")
 
         # 2. Fetch from API with Category Expansion
         # Simply paging with 'start' yields duplicates often.
@@ -102,11 +106,23 @@ class NaverPlaceAPI:
                 sub_query = f"{query} {cat}"
                 
             req_size = 100
+            
+            # Param Logic based on Mode
+            sort_method = "comment"
+            start_idx = 1
+            
+            if search_mode == 'random':
+                import random
+                sort_method = "random" # 'random' is Naver's Accuracy/Similiarity sort
+                # Mix it up: sometimes get page 1, sometimes page 2 (start=101)
+                # Since req_size is 100, next page is 101.
+                start_idx = random.choice([1, 1, 101]) 
+            
             params = {
                 "query": sub_query,
                 "display": req_size,
-                "start": 1, 
-                "sort": "comment"
+                "start": start_idx, 
+                "sort": sort_method
             }
             
             headers = self._get_headers()
@@ -136,7 +152,7 @@ class NaverPlaceAPI:
                 break
         
         # 3. Save to Cache
-        self.file_cache[query] = {
+        self.file_cache[cache_key] = {
             "timestamp": time.time(),
             "items": all_items
         }

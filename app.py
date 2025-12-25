@@ -88,6 +88,10 @@ def main():
             st.session_state.current_location = location
         
         st.header("⚙️ 옵션")
+        # Hidden Gem Toggle
+        use_hidden_gem = st.toggle("💎 숨은 맛집 찾기 (랜덤/다양성)", 
+                                   help="활성화하면 리뷰순이 아닌 랜덤순으로 다양한 식당을 가져옵니다.")
+                                   
         category_options = st.multiselect(
             "선호 종류 (선택 안 하면 전체)", 
             ["한식", "양식", "중식", "일식", "분식", "아시아"],
@@ -107,24 +111,29 @@ def main():
         st.session_state.top_menus = []
     if 'last_query' not in st.session_state:
         st.session_state.last_query = ""
+    if 'last_mode' not in st.session_state: # Track mode changes
+        st.session_state.last_mode = ""
 
     # Clear cache only if requested explicitly or implicitly by changing options
     need_refresh = False
     if st.button("🔄 데이터 다시 불러오기", type="secondary"):
         st.cache_data.clear() # Clear streamlit cache
         need_refresh = True
+        
+    current_mode = 'random' if use_hidden_gem else 'popular'
     
-    # Check if we need to fetch new data (Query changed or Refresh requested)
-    if query != st.session_state.last_query or need_refresh or not st.session_state.processed_results:
+    # Check if we need to fetch new data (Query changed, Mode changed, or Refresh requested)
+    if (query != st.session_state.last_query) or (current_mode != st.session_state.last_mode) or need_refresh or not st.session_state.processed_results:
         st.session_state.last_query = query
+        st.session_state.last_mode = current_mode
         st.session_state.selected_menu = None # Reset selection on new search
         
         api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
         
-        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (최초 1회만 느려요)"):
+        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (모드: {'숨은 맛집' if use_hidden_gem else '인기 맛집'})"):
             if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
                 # API handles file caching internally now
-                raw_data = api.search_places(query, display=50) # display param is internally overridden to 100 now
+                raw_data = api.search_places(query, display=50, search_mode=current_mode) # display param is internally overridden to 100 now
                 items = raw_data['items'] if raw_data else []
             else:
                 items = MOCK_DATA
