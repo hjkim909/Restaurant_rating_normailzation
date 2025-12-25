@@ -1,0 +1,348 @@
+{
+  "강남역 맛집": {
+    "timestamp": 1766643008.9221172,
+    "items": [
+      {
+        "title": "장인닭갈비 강남점",
+        "link": "https://jangindak.co.kr/",
+        "category": "한식>닭갈비",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 820-1",
+        "roadAddress": "서울특별시 강남구 테헤란로1길 19",
+        "mapx": "1270274938",
+        "mapy": "374996548"
+      },
+      {
+        "title": "고수닭갈비",
+        "link": "",
+        "category": "한식>닭갈비",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 818-1 지천빌딩 지하1층",
+        "roadAddress": "서울특별시 강남구 강남대로96길 12 지천빌딩 지하1층",
+        "mapx": "1270281716",
+        "mapy": "374997744"
+      },
+      {
+        "title": "다몽집 신논현본점",
+        "link": "https://blog.naver.com/jhoon0729",
+        "category": "한식>육류,고기요리",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 619-5 지하1층/2층 다몽집",
+        "roadAddress": "서울특별시 강남구 강남대로100길 13 지하1층/2층 다몽집",
+        "mapx": "1270271567",
+        "mapy": "375017942"
+      },
+      {
+        "title": "알부자",
+        "link": "",
+        "category": "한식>해물,생선요리",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 817-34 1층 알부자",
+        "roadAddress": "서울특별시 강남구 강남대로98길 14 1층 알부자",
+        "mapx": "1270278213",
+        "mapy": "375007176"
+      },
+      {
+        "title": "60년전통신촌황소곱창 <b>강남역</b>직영점",
+        "link": "https://app.catchtable.co.kr/ct/shop/60hwangsogobchang",
+        "category": "음식점>한식>육류,고기요리>곱창,막창,양",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 619-5 스타빌딩 지상1층",
+        "roadAddress": "서울특별시 강남구 강남대로100길 13 스타빌딩 지상1층",
+        "mapx": "1270271689",
+        "mapy": "375018424"
+      },
+      {
+        "title": "쉐이크쉑 강남대로점",
+        "link": "http://www.shakeshack.kr/",
+        "category": "양식>햄버거",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1306-5",
+        "roadAddress": "서울특별시 서초구 강남대로 421",
+        "mapx": "1270262223",
+        "mapy": "375001017"
+      },
+      {
+        "title": "트라가 <b>강남역</b>점",
+        "link": "https://app.catchtable.co.kr/ct/shop/TragaGangnam",
+        "category": "음식점>스페인음식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1321-9 2층 201호 트라가",
+        "roadAddress": "서울특별시 서초구 강남대로55길 24 2층 201호 트라가",
+        "mapx": "1270256890",
+        "mapy": "374956249"
+      },
+      {
+        "title": "감성타코 <b>강남역</b>점",
+        "link": "https://app.catchtable.co.kr/ct/shop/tacognm?from=share&type=DINING",
+        "category": "음식점>멕시코,남미음식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 820-9 지하1층 감성타코",
+        "roadAddress": "서울특별시 강남구 강남대로 406 지하1층 감성타코",
+        "mapx": "1270275014",
+        "mapy": "374989609"
+      },
+      {
+        "title": "마초쉐프 강남본점",
+        "link": "http://machochef.kr",
+        "category": "양식>이탈리아음식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 616-14 1층",
+        "roadAddress": "서울특별시 강남구 강남대로106길 29 1층",
+        "mapx": "1270278735",
+        "mapy": "375034081"
+      },
+      {
+        "title": "나폴리회관 <b>강남역</b>점",
+        "link": "http://instagram.com/napolihall",
+        "category": "음식점>피자",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 635-10 1층 나폴리회관",
+        "roadAddress": "서울특별시 강남구 테헤란로5길 24 1층 나폴리회관",
+        "mapx": "1270289916",
+        "mapy": "375002033"
+      },
+      {
+        "title": "고베규카츠 서울 강남점",
+        "link": "https://www.instagram.com/kobekyu/",
+        "category": "음식점>일식>돈가스",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 617-3 예촌빌딩",
+        "roadAddress": "서울특별시 강남구 강남대로102길 29 예촌빌딩",
+        "mapx": "1270275872",
+        "mapy": "375028871"
+      },
+      {
+        "title": "은행골 <b>강남역</b>점",
+        "link": "https://app.catchtable.co.kr/ct/shop/eunhaenggol_gangnam",
+        "category": "음식점>일식>초밥,롤",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1308-14 3층 은행골",
+        "roadAddress": "서울특별시 서초구 서초대로75길 34 3층 은행골",
+        "mapx": "1270251701",
+        "mapy": "375005766"
+      },
+      {
+        "title": "오마카세 오사이초밥 <b>강남역</b>점",
+        "link": "https://catchtable.co.kr/542sushign",
+        "category": "음식점>일식>초밥,롤",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 817-30 5층",
+        "roadAddress": "서울특별시 강남구 테헤란로1길 28-9 5층",
+        "mapx": "1270280926",
+        "mapy": "375004882"
+      },
+      {
+        "title": "을지다락 <b>강남역</b>",
+        "link": "https://www.instagram.com/euljidarak_gangnamstation",
+        "category": "음식점>양식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 818-6 2층",
+        "roadAddress": "서울특별시 강남구 강남대로96길 22 2층",
+        "mapx": "1270287954",
+        "mapy": "374999202"
+      },
+      {
+        "title": "태양의토마토라멘 강남점",
+        "link": "https://www.instagram.com/taitoma_korea",
+        "category": "음식점>일식>일본식라면",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 810-8 2층",
+        "roadAddress": "서울특별시 강남구 강남대로106길 7 2층",
+        "mapx": "1270262365",
+        "mapy": "375029758"
+      },
+      {
+        "title": "하우마라탕",
+        "link": "",
+        "category": "중식>중식당",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 818-7 2층",
+        "roadAddress": "서울특별시 강남구 강남대로94길 23 2층",
+        "mapx": "1270292507",
+        "mapy": "374997698"
+      },
+      {
+        "title": "하이디라오 서초지점",
+        "link": "https://app.catchtable.co.kr/ct/shop/haidilao_seocho",
+        "category": "음식점>중식당",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1303-37 2층 하이디라오 훠궈",
+        "roadAddress": "서울특별시 서초구 서초대로77길 54 2층 하이디라오 훠궈",
+        "mapx": "1270248509",
+        "mapy": "375025793"
+      },
+      {
+        "title": "딘타이펑 강남점",
+        "link": "http://www.dintaifung.co.kr/",
+        "category": "음식점>중식당",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1317-31 세계빌딩 2층",
+        "roadAddress": "서울특별시 서초구 서초대로73길 12 세계빌딩 2층",
+        "mapx": "1270258235",
+        "mapy": "374986194"
+      },
+      {
+        "title": "따롱이훠궈 강남점",
+        "link": "http://dalongyi.co.kr/",
+        "category": "중식>중식당",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1316-29 2층",
+        "roadAddress": "서울특별시 서초구 서초대로73길 9 2층",
+        "mapx": "1270252316",
+        "mapy": "374983148"
+      },
+      {
+        "title": "춘리마라탕 강남점",
+        "link": "https://chunlimalatang.com",
+        "category": "중식>마라탕",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 814-6 CGV 3층",
+        "roadAddress": "서울특별시 강남구 강남대로 438 CGV 3층",
+        "mapx": "1270263451",
+        "mapy": "375015130"
+      },
+      {
+        "title": "보슬보슬 역삼본점",
+        "link": "https://www.instagram.com/boseulboseul",
+        "category": "분식>종합분식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 828-22 남곡빌딩 1층",
+        "roadAddress": "서울특별시 강남구 논현로85길 59 남곡빌딩 1층",
+        "mapx": "1270332676",
+        "mapy": "374977095"
+      },
+      {
+        "title": "장원김밥 서초점",
+        "link": "",
+        "category": "분식>김밥",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1308-13",
+        "roadAddress": "서울특별시 서초구 서초대로77길 31",
+        "mapx": "1270254357",
+        "mapy": "375006488"
+      },
+      {
+        "title": "영차떡볶이",
+        "link": "https://www.instagram.com/youngcha_tteokbokki",
+        "category": "분식>종합분식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 813-10 1층 101호",
+        "roadAddress": "서울특별시 강남구 봉은사로4길 36 1층 101호",
+        "mapx": "1270269257",
+        "mapy": "375024609"
+      },
+      {
+        "title": "또보겠지떡볶이집 강남헬로몽키점",
+        "link": "https://app.catchtable.co.kr/ct/shop/gn.hellomonkey",
+        "category": "음식점>분식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 812-3 2층",
+        "roadAddress": "서울특별시 강남구 봉은사로6길 30 2층",
+        "mapx": "1270272802",
+        "mapy": "375030822"
+      },
+      {
+        "title": "로봇김밥 <b>강남역</b>점",
+        "link": "http://robotfnb.com/",
+        "category": "음식점>분식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 821 이즈타워",
+        "roadAddress": "서울특별시 강남구 테헤란로 101 이즈타워",
+        "mapx": "1270281334",
+        "mapy": "374968445"
+      },
+      {
+        "title": "땀땀",
+        "link": "",
+        "category": "음식점>베트남음식",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 817-31",
+        "roadAddress": "서울특별시 강남구 강남대로98길 12-5",
+        "mapx": "1270279819",
+        "mapy": "375003861"
+      },
+      {
+        "title": "노티드 <b>강남역</b>",
+        "link": "https://smartstore.naver.com/cafeknotted",
+        "category": "음식점>카페,디저트>카페",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1305-7 3층",
+        "roadAddress": "서울특별시 서초구 강남대로 429 3층",
+        "mapx": "1270257918",
+        "mapy": "375008052"
+      },
+      {
+        "title": "뉴욕러브베이글 강남본점",
+        "link": "https://www.nylovebagel.com/",
+        "category": "카페,디저트>카페",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 813-4 W빌딩 1층",
+        "roadAddress": "서울특별시 강남구 봉은사로2길 31 W빌딩 1층",
+        "mapx": "1270263860",
+        "mapy": "375026122"
+      },
+      {
+        "title": "던킨 원더스 강남",
+        "link": "http://www.dunkindonuts.co.kr/",
+        "category": "카페,디저트>도넛",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 서초구 서초동 1328 홍우빌딩 1층",
+        "roadAddress": "서울특별시 서초구 강남대로 373 홍우빌딩 1층",
+        "mapx": "1270281502",
+        "mapy": "374960698"
+      },
+      {
+        "title": "셀렉티드닉스",
+        "link": "https://www.instagram.com/sltdnicks/",
+        "category": "음식점>카페,디저트",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 827-13 1층",
+        "roadAddress": "서울특별시 강남구 테헤란로4길 37 1층",
+        "mapx": "1270309070",
+        "mapy": "374961927"
+      },
+      {
+        "title": "스타벅스 강남R점",
+        "link": "http://www.starbucks.co.kr/",
+        "category": "카페,디저트>카페",
+        "description": "",
+        "telephone": "",
+        "address": "서울특별시 강남구 역삼동 825",
+        "roadAddress": "서울특별시 강남구 강남대로 390 (역삼동)",
+        "mapx": "1270284390",
+        "mapy": "374977110"
+      }
+    ]
+  }
+}

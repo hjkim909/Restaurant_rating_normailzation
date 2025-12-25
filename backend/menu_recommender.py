@@ -15,7 +15,9 @@ class MenuRecommender:
         Focuses on places with valid lunch scores.
         """
         # Filter for decent lunch places (score >= 50)
-        target_places = [p for p in places if p.get('lunch_score', 0) >= 50]
+        # target_places = [p for p in places if p.get('lunch_score', 0) >= 50]
+        # PIVOT: Use all places because Search API doesn't provide enough text for NLP scoring 
+        target_places = places
         
         if not target_places:
             return []
@@ -48,5 +50,13 @@ class MenuRecommender:
         # Count frequencies
         counter = Counter(keywords)
         
-        # Return top N most common
-        return [item for item, count in counter.most_common(top_n)]
+        # PIVOT: Random variety
+        # Get top 50 candidates
+        candidates = [item for item, count in counter.most_common(50)]
+        
+        # Sample random 15
+        import random
+        if len(candidates) > top_n:
+            return random.sample(candidates, top_n)
+        else:
+            return candidates

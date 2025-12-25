@@ -1,2 +1,97 @@
 2025-12-25 13:32:08,090,search,{'query': 'Test', 'display': 5, 'sort': 'comment'},401
 2025-12-25 13:53:36,252,search,{'query': 'Test', 'display': 5, 'sort': 'comment'},401
+2025-12-25 14:10:45,165,search,{'query': '강남역 한식', 'display': 20, 'sort': 'comment'},200
+2025-12-25 14:16:12,680,search,{'query': '강남역 맛집', 'display': 1, 'sort': 'comment'},200
+2025-12-25 14:16:43,570,search,{'query': '강남역 한식', 'display': 20, 'sort': 'comment'},200
+2025-12-25 14:31:02,325,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:31:02,325,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:33:41,893,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:33:41,916,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:33:41,916,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:33:54,224,search,{'query': '강남역 양식 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:33:57,720,search,{'query': '강남역 양식 중식 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:34:55,412,search,{'query': '여의도역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:53:22,957,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:53:22,960,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:53:23,639,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:53:23,731,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:53:39,311,search,{'query': '강남역 양식 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:54:08,232,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:55:29,414,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:56:55,817,search,{'query': '강남역 맛집', 'display': 50, 'sort': 'comment'},200
+2025-12-25 14:58:37,287,search,{'query': '강남역 맛집', 'display': 5, 'start': 1, 'sort': 'comment'},200
+2025-12-25 14:58:37,289,search,{'query': '강남역 맛집', 'display': 5, 'start': 1, 'sort': 'comment'},200
+2025-12-25 14:58:37,490,search,{'query': '강남역 맛집', 'display': 5, 'start': 6, 'sort': 'comment'},200
+2025-12-25 14:58:37,493,search,{'query': '강남역 맛집', 'display': 5, 'start': 6, 'sort': 'comment'},200
+2025-12-25 14:58:37,695,search,{'query': '강남역 맛집', 'display': 5, 'start': 11, 'sort': 'comment'},200
+2025-12-25 14:58:37,696,search,{'query': '강남역 맛집', 'display': 5, 'start': 11, 'sort': 'comment'},200
+2025-12-25 14:58:37,899,search,{'query': '강남역 맛집', 'display': 5, 'start': 16, 'sort': 'comment'},200
+2025-12-25 14:58:37,902,search,{'query': '강남역 맛집', 'display': 5, 'start': 16, 'sort': 'comment'},200
+2025-12-25 14:58:38,111,search,{'query': '강남역 맛집', 'display': 5, 'start': 21, 'sort': 'comment'},200
+2025-12-25 14:58:38,113,search,{'query': '강남역 맛집', 'display': 5, 'start': 21, 'sort': 'comment'},200
+2025-12-25 14:58:38,309,search,{'query': '강남역 맛집', 'display': 5, 'start': 26, 'sort': 'comment'},200
+2025-12-25 14:58:38,324,search,{'query': '강남역 맛집', 'display': 5, 'start': 26, 'sort': 'comment'},200
+2025-12-25 14:58:38,497,search,{'query': '강남역 맛집', 'display': 5, 'start': 31, 'sort': 'comment'},200
+2025-12-25 14:58:38,505,search,{'query': '강남역 맛집', 'display': 5, 'start': 31, 'sort': 'comment'},200
+2025-12-25 14:58:38,705,search,{'query': '강남역 맛집', 'display': 5, 'start': 36, 'sort': 'comment'},200
+2025-12-25 14:58:38,713,search,{'query': '강남역 맛집', 'display': 5, 'start': 36, 'sort': 'comment'},200
+2025-12-25 14:58:38,912,search,{'query': '강남역 맛집', 'display': 5, 'start': 41, 'sort': 'comment'},200
+2025-12-25 14:58:38,939,search,{'query': '강남역 맛집', 'display': 5, 'start': 41, 'sort': 'comment'},200
+2025-12-25 14:58:39,113,search,{'query': '강남역 맛집', 'display': 5, 'start': 46, 'sort': 'comment'},200
+2025-12-25 14:58:39,130,search,{'query': '강남역 맛집', 'display': 5, 'start': 46, 'sort': 'comment'},200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=1&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=1&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=6&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=6&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=11&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=11&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=16&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=16&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=21&sort=comment,200
+2025-12-25 15:02:11,search,query=강남역 맛집&display=5&start=21&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=26&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=26&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=31&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=31&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=36&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=36&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=41&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=41&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=46&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=46&sort=comment,200
+2025-12-25 15:02:12,search,query=강남역 맛집&display=5&start=51&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=51&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=56&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=56&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=61&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=61&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=66&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=66&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=71&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=71&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=76&sort=comment,200
+2025-12-25 15:02:13,search,query=강남역 맛집&display=5&start=76&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=81&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=81&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=86&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=86&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=91&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=91&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=96&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=96&sort=comment,200
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=101&sort=comment,429
+2025-12-25 15:02:14,search,query=강남역 맛집&display=5&start=101&sort=comment,429
+2025-12-25 15:10:07,search,query=강남역 맛집 한식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:07,search,query=강남역 맛집 한식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:07,search,query=강남역 맛집 양식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:07,search,query=강남역 맛집 양식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 일식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 일식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 중식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 중식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 분식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 분식&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 고기&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 고기&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 카페&display=5&start=1&sort=comment,200
+2025-12-25 15:10:08,search,query=강남역 맛집 카페&display=5&start=1&sort=comment,200

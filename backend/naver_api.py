@@ -2,6 +2,9 @@ import os
 import requests
 import time
 import logging
+import json
+from datetime import datetime
+import os
 from urllib.parse import quote
 
 # Simple in-memory cache
@@ -15,13 +18,35 @@ class NaverPlaceAPI:
         self.client_secret = client_secret
         self.base_url = "https://openapi.naver.com/v1/search/local.json"
         
-        # Setup logging
+        # Persistent Cache File
+        self.cache_file = "restaurant_cache.json"
+        self._load_file_cache()
+
+        # Setup logging (kept for general class logging, though _log_request now writes directly)
         logging.basicConfig(
             filename='api_usage.csv', 
             level=logging.INFO, 
             format='%(asctime)s,%(message)s'
         )
         self.logger = logging.getLogger('NaverAPI')
+
+    def _load_file_cache(self):
+        if os.path.exists(self.cache_file):
+            try:
+                with open(self.cache_file, 'r', encoding='utf-8') as f:
+                    self.file_cache = json.load(f)
+            except Exception as e:
+                print(f"Error loading cache file: {e}. Initializing empty cache.")
+                self.file_cache = {}
+        else:
+            self.file_cache = {}
+
+    def _save_file_cache(self):
+        try:
+            with open(self.cache_file, 'w', encoding='utf-8') as f:
+                json.dump(self.file_cache, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Failed to save cache: {e}")
 
     def _get_headers(self):
         return {
@@ -30,59 +55,94 @@ class NaverPlaceAPI:
         }
 
     def _log_request(self, endpoint, params, status):
-        self.logger.info(f"{endpoint},{params},{status}")
+        # This now writes directly to the CSV, bypassing the standard logging setup for this specific log.
+        with open("api_usage.csv", "a", encoding='utf-8') as f:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Convert params dict to a string for logging
+            params_str = '&'.join(f"{k}={v}" for k, v in params.items())
+            f.write(f"{timestamp},{endpoint},{params_str},{status}\n")
 
-    def _get_cache_key(self, endpoint, params):
-        # Create a stable string representation of params for the key
-        params_str = str(sorted(params.items()))
-        return f"{endpoint}:{params_str}"
+    # _get_cache_key is no longer needed as the file cache uses the query directly as a key.
+    # def _get_cache_key(self, endpoint, params):
+    #     # Create a stable string representation of params for the key
+    #     params_str = str(sorted(params.items()))
+    #     return f"{endpoint}:{params_str}"
 
     def search_places(self, query, display=5):
         """
-        Search for places using Naver Local Search API.
+        Search for places with persistent caching and deduplication.
         """
-        endpoint = self.base_url
-        params = {
-            "query": query,
-            "display": display,
-            "sort": "comment" # Sort by review count to get popular places
-        }
-
-        cache_key = self._get_cache_key("search", params)
-        if cache_key in API_CACHE:
-            cached_item = API_CACHE[cache_key]
-            if time.time() - cached_item["timestamp"] < CACHE_DURATION:
-                print(f"Cache hit for {query}")
-                return cached_item["data"]
-
-        headers = self._get_headers()
         
-        try:
-            response = requests.get(endpoint, headers=headers, params=params)
-            self._log_request("search", params, response.status_code)
-            
-            if response.status_code == 200:
-                data = response.json()
-                # Store in cache
-                API_CACHE[cache_key] = {
-                    "data": data,
-                    "timestamp": time.time()
-                }
-                return data
-            elif response.status_code == 401:
-                print("Error: Unauthorized. Check API keys.")
-                return None
-            elif response.status_code == 429:
-                print("Error: Rate limit exceeded.")
-                time.sleep(1) # simple backoff
-                return None
+        # 1. Check File Cache
+        if query in self.file_cache:
+            cached_entry = self.file_cache[query]
+            # Expire after 24 hours (86400 seconds)
+            if time.time() - cached_entry['timestamp'] < 86400:
+                print(f"✅ Local Cache Hit for '{query}'")
+                return {"items": cached_entry['items']}
             else:
-                print(f"Error: {response.status_code} - {response.text}")
-                return None
+                print(f"⚠️ Cache expired for '{query}', re-fetching...")
 
-        except requests.exceptions.RequestException as e:
-            print(f"Network error: {e}")
-            return None
+        # 2. Fetch from API with Category Expansion
+        # Simply paging with 'start' yields duplicates often.
+        # Strategy: Iterate through categories to get variety.
+        categories = ["한식", "양식", "일식", "중식", "분식", "고기", "카페"]
+        
+        all_items = []
+        seen_keys = set() 
+        
+        print(f"📡 Fetching live data via Category Expansion for '{query}'...")
+        
+        for cat in categories:
+            # Construct sub-query, e.g. "강남역 맛집 한식"
+            # If query already contains category (e.g. "강남역 한식"), just run once.
+            if cat in query:
+                sub_query = query
+            else:
+                sub_query = f"{query} {cat}"
+                
+            req_size = 5
+            params = {
+                "query": sub_query,
+                "display": req_size,
+                "start": 1, 
+                "sort": "comment"
+            }
+            
+            headers = self._get_headers()
+            try:
+                response = requests.get(self.base_url, headers=headers, params=params)
+                self._log_request("search", params, response.status_code)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    items = data.get('items', [])
+                    
+                    for item in items:
+                        # Clean title for key
+                        title_clean = item['title'].replace('<b>', '').replace('</b>', '')
+                        unique_key = (item.get('mapx'), item.get('mapy'), title_clean)
+                        
+                        if unique_key not in seen_keys:
+                            seen_keys.add(unique_key)
+                            all_items.append(item)
+                    
+                    time.sleep(0.05) 
+            except Exception as e:
+                print(f"Network Error: {e}")
+            
+            # If original query was specific (e.g. "강남역 한식"), no need to iterate others
+            if cat in query:
+                break
+        
+        # 3. Save to Cache
+        self.file_cache[query] = {
+            "timestamp": time.time(),
+            "items": all_items
+        }
+        self._save_file_cache()
+        
+        return {"items": all_items}
 
     # Note: Naver Search API doesn't provide full review texts directly in the listing.
     # We might need a separate way to get detailed reviews if the basic search result isn't enough.

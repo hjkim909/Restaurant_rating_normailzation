@@ -67,8 +67,33 @@ def test_menu_recommender():
     
     print("Menu Recommender Test Passed")
 
+def test_real_api_connection():
+    import os
+    from dotenv import load_dotenv
+    from backend.naver_api import NaverPlaceAPI
+    
+    load_dotenv()
+    client_id = os.getenv("NAVER_CLIENT_ID")
+    client_secret = os.getenv("NAVER_CLIENT_SECRET")
+    
+    if not client_id or "your_client_id" in client_id:
+        print("Skipping Real API Test: No valid keys in .env")
+        return
+
+    print("Testing Real Naver API Connection...")
+    api = NaverPlaceAPI(client_id, client_secret)
+    # Search for something simple
+    result = api.search_places("강남역 맛집", display=1)
+    
+    if result and 'items' in result:
+        print(f"Success! Found {len(result['items'])} items.")
+        print(f"Sample: {result['items'][0]['title']}")
+    else:
+        print("Failed to fetch data from Naver API. Check keys or quota.")
+
 if __name__ == "__main__":
-    test_nlp()
-    test_data_normalization()
-    test_api_mock()
-    test_menu_recommender()
+    # test_nlp()
+    # test_data_normalization()
+    # test_api_mock()
+    # test_menu_recommender()
+    test_real_api_connection()

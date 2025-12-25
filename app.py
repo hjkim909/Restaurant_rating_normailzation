@@ -1,18 +1,19 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-import pandas as pd
 import os
+import random
 from dotenv import load_dotenv
 from backend.naver_api import NaverPlaceAPI
 from backend.data import DataProcessor
+from backend.menu_recommender import MenuRecommender
 
 # Load environment variables
 load_dotenv()
 
 # Setup Page
 st.set_page_config(
-    page_title="직장인 점심 맛집 파인더",
+    page_title="오늘 뭐 먹지?",
     page_icon="🍱",
     layout="wide"
 )
@@ -21,191 +22,170 @@ st.set_page_config(
 CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 
-# Mock data for demonstration if API fails or keys missing
+# Mock data for demo
 MOCK_DATA = [
-    {
-        "title": "<b>시골밥상</b>",
-        "category": "한식,김치찌개",
-        "address": "서울 강남구 역삼동",
-        "roadAddress": "서울 강남구 테헤란로",
-        "mapx": "314000", "mapy": "544000", 
-        "description": "음식 빨리 나오고 김치찌개가 맛있어요. 점심에 딱입니다.",
-        "userRating": "4.5"
-    },
-    {
-        "title": "<b>파스타가든</b>",
-        "category": "양식,파스타",
-        "address": "서울 강남구 서초동",
-        "roadAddress": "서울 서초구 서초대로",
-        "description": "분위기는 좋은데 웨이팅이 너무 길어요. 30분 기다림.",
-        "userRating": "4.2"
-    },
-    {
-        "title": "<b>홍대개미</b>",
-        "category": "일식,덮밥",
-        "address": "서울 강남구 역삼동",
-        "description": "스테이크 덮밥이 맛있고 회전율이 빨라요.",
-        "userRating": "4.4"
-    },
-    {
-        "title": "<b>마포만두</b>",
-        "category": "분식,만두",
-        "address": "서울 강남구 역삼동",
-        "description": "갈비만두가 유명해요. 혼밥하기 좋음.",
-        "userRating": "4.1"
-    },
-    {
-        "title": "<b>은행골</b>",
-        "category": "일식,초밥",
-        "address": "서울 강남구 역삼동",
-        "description": "초밥이 입에서 녹아요. 점심 특선 있음.",
-        "userRating": "4.6"
-    }
+    {"title": "<b>시골밥상</b>", "category": "한식,김치찌개", "address": "강남구 역삼동", "mapx":"314000", "mapy":"544000", "description": "맛난 김치찌개"},
+    {"title": "<b>은행골</b>", "category": "일식,초밥", "address": "강남구 역삼동", "description": "입에서 녹는 초밥"},
+    {"title": "<b>홍대개미</b>", "category": "일식,덮밥", "address": "강남구 역삼동", "description": "스테이크 덮밥"},
+    {"title": "<b>마포만두</b>", "category": "분식,만두", "address": "강남구 역삼동", "description": "갈비만두"},
+    {"title": "<b>땀땀</b>", "category": "아시아음식,쌀국수", "address": "강남구 역삼동", "description": "곱창 쌀국수"},
+    {"title": "<b>알라보</b>", "category": "양식,샐러드", "address": "강남구 역삼동", "description": "아보카도 샐러드"}
 ]
 
-# Helper to clean HTML tags from title
 def clean_html(raw_html):
     import re
     cleanr = re.compile('<.*?>')
-    cleantext = re.sub(cleanr, '', raw_html)
-    return cleantext
+    return re.sub(cleanr, '', raw_html)
 
 def main():
-    st.title("🍱 직장인 점심 맛집 파인더")
-    st.markdown("네이버 평점 거품을 걷어내고, **점심시간에 딱 맞는** 맛집을 찾아드립니다.")
+    st.title("🍱 오늘 점심, 뭐 먹지?")
+    st.caption("주변 맛집 데이터를 분석해 **실제 먹을 수 있는 메뉴**만 추천해 드려요.")
 
     # Sidebar
     with st.sidebar:
-        st.header("검색 설정")
-        location = st.selectbox(
-            "지역 선택",
-            ["강남역", "여의도역", "홍대입구역"]
-        )
-        category = st.selectbox(
-            "음식 종류",
-            ["한식", "양식", "중식", "일식", "분식"]
+        st.header("📍 내 위치 설정")
+        location = st.selectbox("지역 선택", ["강남역", "여의도역", "홍대입구역", "판교역", "성수역"])
+        
+        st.header("⚙️ 옵션")
+        category_options = st.multiselect(
+            "선호 종류 (선택 안 하면 전체)", 
+            ["한식", "양식", "중식", "일식", "분식", "아시아"],
+            default=[]
         )
         
-        st.markdown("---")
-        st.header("필터")
-        filter_lunch = st.checkbox("🍱 점심 적합도 높은 곳만", value=True)
-        # filter_rating = st.checkbox("⭐ 상대평점 상위 20%", value=False)
+        if st.button("🔄 데이터 다시 불러오기", type="secondary"):
+            st.cache_data.clear()
+
+    # Main Logic
+    # 1. Fetch Data
+    query = f"{location} 맛집"
+    if category_options:
+        query = f"{location} {' '.join(category_options)} 맛집"
+
+    api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
+    
+    with st.spinner(f"📡 {location} 주변 식당 스캔 중... (최초 1회만 느려요)"):
+        if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
+            # API handles file caching internally now
+            raw_data = api.search_places(query, display=50)
+            items = raw_data['items'] if raw_data else []
+        else:
+            items = MOCK_DATA
+            if not CLIENT_ID: st.warning("데모 모드: API 키 설정을 확인해주세요.")
         
-        search_btn = st.button("맛집 찾기", type="primary")
+        processor = DataProcessor()
+        # Process every time to ensure menu shuffling works on cached data too
+        processed_results = processor.process_places(items)
+    
+    # Show Cache Stats (Simple indicator)
+    if os.path.exists("restaurant_cache.json"):
+        st.caption(f"💾 로컬 데이터베이스 사용 중 ({len(items)}개 식당 저장됨)")
+    
+    # 2. Extract Menus
+    recommender = MenuRecommender()
+    top_menus = recommender.extract_top_menus(processed_results, top_n=15)
+    
+    # State management for selection
+    if 'selected_menu' not in st.session_state:
+        st.session_state.selected_menu = None
 
-    # Main Content
-    if search_btn or True: # Load on start for demo
-        with st.spinner(f"{location} 주변 {category} 맛집 찾는 중..."):
-            
-            # API Call
-            query = f"{location} {category}"
-            api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
-            
-            if CLIENT_ID and CLIENT_SECRET and CLIENT_ID != "your_client_id_here":
-                raw_data = api.search_places(query, display=20)
-            else:
-                raw_data = None
-                if not (CLIENT_ID):
-                     st.warning("⚠️ 네이버 API 키가 설정되지 않았습니다. 데모 데이터를 표시합니다.")
-
-            # Process Data
-            items = []
-            if raw_data and 'items' in raw_data:
-                items = raw_data['items']
-            else:
-                 # Use mock items logic extended for demo
-                 items = MOCK_DATA
-            
-            processor = DataProcessor()
-            processed_results = processor.process_places(items)
-            
-            # --- MENU RECOMMENDATION START ---
-            from backend.menu_recommender import MenuRecommender
-            menu_recommender = MenuRecommender()
-            top_menus = menu_recommender.extract_top_menus(processed_results)
-            
-            # Session State for Menu Filter
-            if 'selected_menu' not in st.session_state:
-                st.session_state.selected_menu = None
-
-            st.markdown("### 🍽️ 오늘의 추천 메뉴")
+    # Layout: Top Section (Random & Chips)
+    col_rand, col_chips = st.columns([1, 2])
+    
+    with col_rand:
+        st.markdown("### 🎲 못 고르겠다면?")
+        if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
             if top_menus:
-                # Create columns for simple button-like selection (or use radio horizontal)
-                # Using a horizontal radio button styled as chips could be cleaner, but native options limited.
-                # Let's use simple columns for buttons to act as filters.
-                
-                # Reset button
-                cols = st.columns([1] + [1] * len(top_menus))
-                if cols[0].button("전체보기", type="secondary" if st.session_state.selected_menu else "primary"):
-                    st.session_state.selected_menu = None
-                    # st.experimental_rerun() # might be needed, but button press usually reruns
-                
-                for i, menu in enumerate(top_menus):
-                    is_selected = (st.session_state.selected_menu == menu)
-                    if cols[i+1].button(f"#{menu}", type="primary" if is_selected else "secondary"):
-                        st.session_state.selected_menu = menu
-                        # st.experimental_rerun()
+                st.session_state.selected_menu = random.choice(top_menus)
+            else:
+                st.error("추천할 메뉴 데이터가 부족해요.")
 
-            # Apply Menu Filter
-            if st.session_state.selected_menu:
-                # Filter places that contain the selected menu in category or title
-                filtered_results = []
-                for p in processed_results:
-                    cat = p.get('category', '')
-                    title = p.get('title', '')
-                    target = st.session_state.selected_menu
-                    if target in cat or target in title:
-                        filtered_results.append(p)
-                processed_results = filtered_results
-                st.info(f"'{st.session_state.selected_menu}' 관련 맛집 {len(processed_results)}곳을 찾았습니다.")
-            # --- MENU RECOMMENDATION END ---
-
-            # Filtering
-            if filter_lunch:
-                 processed_results = [p for p in processed_results if p['lunch_score'] >= 50]
-
-            # Layout: Map vs List
-            col1, col2 = st.columns([1, 1])
-
-            with col1:
-                st.subheader(f"📍 {location} 맛집 리스트 ({len(processed_results)}곳)")
-                
-                for i, place in enumerate(processed_results):
-                    title = clean_html(place['title'])
-                    
-                    # Highlight cards
-                    card_style = "padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;"
-                    if place['lunch_score'] >= 80:
-                        card_style += "background-color: #f0f9ff; border-color: #bae6fd;" # Light blue for high score
-                    
-                    with st.container():
-                        st.markdown(f"""
-                        <div style="{card_style}">
-                            <b>{i+1}. {title}</b> 
-                            <span style="color: #666; font-size: 0.9em;">({place.get('category','한식')})</span><br>
-                            ⭐ <b>{place['adjusted_rating']}</b> <small>({place['rating_diff_str']})</small> 
-                            | 🍱 점심점수: <b>{place['lunch_score']}</b>
-                            <br>
-                            <small style="color: #444;">"{place.get('description', '')}"</small>
-                            <br>
-                            {' '.join([f"<span style='background:#eee; padding:2px 5px; border-radius:4px; font-size:0.8em;'>#{k}</span>" for k in place.get('lunch_keywords', [])])}
-                        </div>
-                        """, unsafe_allow_html=True)
+    with col_chips:
+        st.markdown(f"### 🔥 {location} 인기 메뉴")
+        # Display chips nicely
+        if top_menus:
+            # CSS hack for horizontal scroll or nice wrapping chips
+            st.markdown("""
+            <style>
+            .stButton button {border-radius: 20px;}
+            </style>
+            """, unsafe_allow_html=True)
             
-            with col2:
+            # Simple flow layout using columns is hard, let's use a specialized row approach or just simple buttons
+            # Grouping buttons in rows of 5
+            rows = [top_menus[i:i + 5] for i in range(0, len(top_menus), 5)]
+            for row in rows:
+                cols = st.columns(len(row))
+                for i, menu in enumerate(row):
+                    if cols[i].button(f"#{menu}", key=f"btn_{menu}", type="primary" if st.session_state.selected_menu == menu else "secondary"):
+                        st.session_state.selected_menu = menu
+        else:
+            st.info("메뉴를 추출하는 중입니다...")
+
+    st.divider()
+
+    # Layout: Bottom Section (Results)
+    if st.session_state.selected_menu:
+        target_menu = st.session_state.selected_menu
+        st.header(f"😋 오늘의 추천: [{target_menu}]")
+        
+        # Filter restaurants
+        matched_places = [
+            p for p in processed_results 
+            if target_menu in p.get('category', '') or target_menu in p.get('title', '') or target_menu in p.get('description', '')
+        ]
+        
+        if matched_places:
+            c1, c2 = st.columns([1, 1])
+            with c1:
+                st.caption(f"근처에 **{len(matched_places)}곳**의 식당이 있습니다.")
+                for i, place in enumerate(matched_places):
+                    clean_title = clean_html(place['title'])
+                    # User request: Link to Naver Map, not homepage
+                    # Construct search URL for Naver Map
+                    # query format: https://map.naver.com/v5/search/{name}
+                    from urllib.parse import quote
+                    encoded_query = quote(f"{location} {clean_title}") # Include location to be precise
+                    link = f"https://map.naver.com/v5/search/{encoded_query}"
+                    
+                    st.markdown(f"""
+                    **{i+1}. [{clean_title}]({link})** <span style="color:#888">({place.get('category')})</span>  
+                    📍 {place.get('roadAddress', place.get('address'))}
+                    """, unsafe_allow_html=True)
+            
+            with c2:
                 # Map Visualization
-                # Center for Gangnam (Mock coordinates)
-                gangnam_coords = [37.4979, 127.0276] 
-                m = folium.Map(location=gangnam_coords, zoom_start=14)
+                # Calculate center from matched places if coords exist
+                lats = [p['lat'] for p in matched_places if 'lat' in p]
+                lngs = [p['lng'] for p in matched_places if 'lng' in p]
                 
-                # Markers (Normally we need real lat/lon, here we just show center for demo)
-                folium.Marker(
-                    gangnam_coords, 
-                    popup="강남역", 
-                    tooltip="현재 위치"
-                ).add_to(m)
+                if lats and lngs:
+                    center = [sum(lats)/len(lats), sum(lngs)/len(lngs)]
+                else:
+                    center = [37.4979, 127.0276] # Default Gangnam
+                    
+                m = folium.Map(location=center, zoom_start=14)
                 
-                st_folium(m, width="100%", height=500)
+                # Add markers
+                for p in matched_places:
+                    if 'lat' in p and 'lng' in p:
+                       folium.Marker(
+                           [p['lat'], p['lng']], 
+                           popup=clean_html(p['title']), 
+                           tooltip=p.get('category')
+                       ).add_to(m)
+                    
+                st_folium(m, height=300, use_container_width=True)
+        else:
+            st.warning(f"아쉽게도 '{target_menu}' 관련 식당을 찾지 못했어요. 다른 메뉴를 골라보세요!")
+            
+    else:
+        st.markdown("""
+        <div style="text-align: center; padding: 50px; color: #666;">
+            <h3>👆 위에서 메뉴를 선택하거나 랜덤 버튼을 눌러보세요!</h3>
+            <p>현재 위치 주변의 맛집 데이터를 분석해서 리스트를 보여드립니다.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

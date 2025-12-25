@@ -24,6 +24,23 @@ class DataProcessor:
         ratings = []
         
         for place in places:
+            # Convert Coords: Naver Search API returns scaled WGS84 (x 10,000,000)
+            if 'mapx' in place and 'mapy' in place:
+                try:
+                    mx = float(place['mapx'])
+                    my = float(place['mapy'])
+                    
+                    # Logic: 1270274938 -> 127.0274938
+                    lat = my / 10000000.0
+                    lon = mx / 10000000.0
+                    
+                    import math
+                    if math.isfinite(lat) and math.isfinite(lon):
+                         place['lat'] = lat
+                         place['lng'] = lon
+                except:
+                    pass
+            
             # Handle API variations. Search API often returns all strings.
             # Field names might need adjustment based on actual API response
             # Assuming 'mapx', 'mapy', 'title', 'link', 'category', 'description', 'telephone', 'address', 'roadAddress'
