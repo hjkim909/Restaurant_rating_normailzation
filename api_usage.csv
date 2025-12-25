@@ -95,3 +95,353 @@
 2025-12-25 15:10:08,search,query=강남역 맛집 고기&display=5&start=1&sort=comment,200
 2025-12-25 15:10:08,search,query=강남역 맛집 카페&display=5&start=1&sort=comment,200
 2025-12-25 15:10:08,search,query=강남역 맛집 카페&display=5&start=1&sort=comment,200
+2025-12-25 17:40:46,447,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481540183505274&lon=127.0511825089802&format=json&accept-language=ko&addressdetails=1
+2025-12-25 17:40:50,950,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481540183505274&lon=127.0511825089802&format=json&accept-language=ko&addressdetails=1
+2025-12-25 17:42:40,search,query=개포4동 맛집 한식&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 양식&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 일식&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 중식&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 분식&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 고기&display=50&start=1&sort=comment,200
+2025-12-25 17:42:41,search,query=개포4동 맛집 카페&display=50&start=1&sort=comment,200
+2025-12-25 18:39:04,529,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:06,576,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:19,266,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:19,552,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:19,899,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:20,853,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:21,117,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:21,467,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:24,272,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:24,926,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:25,567,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:25,805,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:25,865,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:26,166,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:26,192,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:26,459,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:26,507,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:26,594,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:26,595,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:26,675,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:26,775,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:26,976,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:27,111,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:27,356,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:27,413,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:27,935,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:30,469,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:31,052,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:31,564,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:31,851,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:31,945,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:32,004,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:32,846,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:32,874,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:38,954,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:39,229,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:39,591,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:40,486,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:40,546,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:40,642,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:40,766,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:41,123,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:41,361,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:41,561,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:41,950,Received an HTTP error (429): <html>
+<head>
+<title>Bandwidth limit exceeded</title>
+</head>
+<body>
+<h1>Bandwidth limit exceeded</h1>
+
+<p>You have been temporarily blocked because you have been overusing OSM's geocoding service or because you have not provided sufficient identification of your application. This block will be automatically lifted after a while. Please take the time and adapt your scripts to reduce the number of requests and make sure that you send a valid UserAgent or Referer.</p>
+
+<p>For more information, consult the <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy</a> for the OSM Nominatim server.</p>
+</body>
+</html>
+
+2025-12-25 18:39:44,518,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:45,394,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:46,145,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:46,962,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:50,249,Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 18:39:51,834,Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='nominatim.openstreetmap.org', port=443): Read timed out. (read timeout=1)")': /reverse?lat=37.481395621320374&lon=127.05089211878754&format=json&accept-language=ko&addressdetails=1
+2025-12-25 19:37:15,search,query=강남역 맛집 한식&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 양식&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 일식&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 중식&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 분식&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 고기&display=100&start=1&sort=comment,200
+2025-12-25 19:37:15,search,query=강남역 맛집 카페&display=100&start=1&sort=comment,200
+2025-12-25 19:50:42,search_page,query=강남역 맛집 한식&display=5&start=1&sort=comment,200
+2025-12-25 19:50:42,search_page,query=강남역 맛집 한식&display=5&start=6&sort=comment,200
+2025-12-25 19:50:42,search_page,query=강남역 맛집 한식&display=5&start=11&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 한식&display=5&start=16&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 한식&display=5&start=21&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 한식&display=5&start=26&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 양식&display=5&start=1&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 양식&display=5&start=6&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 양식&display=5&start=11&sort=comment,200
+2025-12-25 19:50:43,search_page,query=강남역 맛집 양식&display=5&start=16&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 양식&display=5&start=21&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 양식&display=5&start=26&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 일식&display=5&start=1&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 일식&display=5&start=6&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 일식&display=5&start=11&sort=comment,200
+2025-12-25 19:50:44,search_page,query=강남역 맛집 일식&display=5&start=16&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 일식&display=5&start=21&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 일식&display=5&start=26&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 중식&display=5&start=1&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 중식&display=5&start=6&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 중식&display=5&start=11&sort=comment,200
+2025-12-25 19:50:45,search_page,query=강남역 맛집 중식&display=5&start=16&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 중식&display=5&start=21&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 중식&display=5&start=26&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 분식&display=5&start=1&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 분식&display=5&start=6&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 분식&display=5&start=11&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 분식&display=5&start=16&sort=comment,200
+2025-12-25 19:50:46,search_page,query=강남역 맛집 분식&display=5&start=21&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 분식&display=5&start=26&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 고기&display=5&start=1&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 고기&display=5&start=6&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 고기&display=5&start=11&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 고기&display=5&start=16&sort=comment,200
+2025-12-25 19:50:47,search_page,query=강남역 맛집 고기&display=5&start=21&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 고기&display=5&start=26&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=1&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=6&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=11&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=16&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=21&sort=comment,200
+2025-12-25 19:50:48,search_page,query=강남역 맛집 카페&display=5&start=26&sort=comment,200
+2025-12-25 19:51:07,search_page,query=강남역 맛집 한식&display=5&start=1&sort=comment,200
+2025-12-25 19:51:07,search_page,query=강남역 맛집 한식&display=5&start=6&sort=comment,200
+2025-12-25 19:51:07,search_page,query=강남역 맛집 한식&display=5&start=11&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 한식&display=5&start=16&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 한식&display=5&start=21&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 한식&display=5&start=26&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 양식&display=5&start=1&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 양식&display=5&start=6&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 양식&display=5&start=11&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 양식&display=5&start=16&sort=comment,200
+2025-12-25 19:51:08,search_page,query=강남역 맛집 양식&display=5&start=21&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 양식&display=5&start=26&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=1&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=6&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=11&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=16&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=21&sort=comment,200
+2025-12-25 19:51:09,search_page,query=강남역 맛집 일식&display=5&start=26&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=1&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=6&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=11&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=16&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=21&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 중식&display=5&start=26&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 분식&display=5&start=1&sort=comment,200
+2025-12-25 19:51:10,search_page,query=강남역 맛집 분식&display=5&start=6&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 분식&display=5&start=11&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 분식&display=5&start=16&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 분식&display=5&start=21&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 분식&display=5&start=26&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 고기&display=5&start=1&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 고기&display=5&start=6&sort=comment,200
+2025-12-25 19:51:11,search_page,query=강남역 맛집 고기&display=5&start=11&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 고기&display=5&start=16&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 고기&display=5&start=21&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 고기&display=5&start=26&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 카페&display=5&start=1&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 카페&display=5&start=6&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 카페&display=5&start=11&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 카페&display=5&start=16&sort=comment,200
+2025-12-25 19:51:12,search_page,query=강남역 맛집 카페&display=5&start=21&sort=comment,200
+2025-12-25 19:51:13,search_page,query=강남역 맛집 카페&display=5&start=26&sort=comment,200
+2025-12-25 20:05:10,search,query=강남역 맛집 한식&display=100&start=1&sort=comment,200
+2025-12-25 20:05:10,search,query=강남역 맛집 양식&display=100&start=1&sort=comment,200
+2025-12-25 20:05:10,search,query=강남역 맛집 일식&display=100&start=1&sort=comment,200
+2025-12-25 20:05:11,search,query=강남역 맛집 중식&display=100&start=1&sort=comment,200
+2025-12-25 20:05:11,search,query=강남역 맛집 분식&display=100&start=1&sort=comment,200
+2025-12-25 20:05:11,search,query=강남역 맛집 고기&display=100&start=1&sort=comment,200
+2025-12-25 20:05:11,search,query=강남역 맛집 카페&display=100&start=1&sort=comment,200

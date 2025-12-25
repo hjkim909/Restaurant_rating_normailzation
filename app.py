@@ -48,7 +48,7 @@ def main():
         st.header("📍 내 위치 설정")
         
         # Geolocation Button
-        use_geo = st.toggle("📍 현재 위치 사용")
+        use_geo = st.toggle("📍 현재 위치 사용", value=True)
         location_coords = None
         if use_geo:
              loc = get_geolocation()
@@ -73,7 +73,7 @@ def main():
 
         # Location Selection
         # Add current_location to options if it's new
-        default_locations = ["강남역", "여의도역", "홍대입구역", "판교역", "성수역"]
+        default_locations = ["강남역", "오목교역", "여의도역", "판교역", "성수역", "을지로입구역", "역삼역"]
         if st.session_state.current_location not in default_locations:
             default_locations.insert(0, st.session_state.current_location)
             
