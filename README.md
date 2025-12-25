@@ -2,6 +2,9 @@
 
 **"맛집 찾기보다 메뉴 고르기가 더 힘든 당신을 위해"**
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://restaurantratingnormailzation-zjcarw4nbej4jgihurwnad.streamlit.app/)
+👉 **[실시간 데모 바로가기](https://restaurantratingnormailzation-zjcarw4nbej4jgihurwnad.streamlit.app/)**
+
 주변 식당 데이터를 실시간으로 분석하여, **지금 바로 먹을 수 있는 점심 메뉴**를 추천해주는 서비스입니다.
 
 ## 🎯 주요 기능
