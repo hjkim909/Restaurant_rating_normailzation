@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from backend.naver_api import NaverPlaceAPI
 from backend.data import DataProcessor
 from backend.menu_recommender import MenuRecommender
+from streamlit_js_eval import get_geolocation
+from backend.geo_utils import get_address_from_coords
 
 # Load environment variables
 load_dotenv()
@@ -44,7 +46,46 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("📍 내 위치 설정")
-        location = st.selectbox("지역 선택", ["강남역", "여의도역", "홍대입구역", "판교역", "성수역"])
+        
+        # Geolocation Button
+        use_geo = st.toggle("📍 현재 위치 사용")
+        location_coords = None
+        if use_geo:
+             loc = get_geolocation()
+             if loc:
+                 location_coords = (loc['coords']['latitude'], loc['coords']['longitude'])
+                 st.success("위치를 가져왔습니다!")
+
+        # Initialize session state for location
+        if 'current_location' not in st.session_state:
+            st.session_state.current_location = "강남역"
+
+        # Update location if coords found
+        if location_coords:
+            address = get_address_from_coords(location_coords[0], location_coords[1])
+            if address:
+                if st.session_state.current_location != address:
+                    st.session_state.current_location = address
+                    st.rerun()
+                # If equal, do nothing (prevent loop)
+            else:
+                st.error("주소를 찾을 수 없습니다.")
+
+        # Location Selection
+        # Add current_location to options if it's new
+        default_locations = ["강남역", "여의도역", "홍대입구역", "판교역", "성수역"]
+        if st.session_state.current_location not in default_locations:
+            default_locations.insert(0, st.session_state.current_location)
+            
+        location = st.selectbox(
+            "지역 선택", 
+            default_locations, 
+            index=default_locations.index(st.session_state.current_location)
+        )
+        
+        # Update session state if user manually changes it
+        if location != st.session_state.current_location:
+            st.session_state.current_location = location
         
         st.header("⚙️ 옵션")
         category_options = st.multiselect(

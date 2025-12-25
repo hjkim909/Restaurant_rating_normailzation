@@ -5,4 +5,6 @@ requests
 pandas
 python-dotenv
 pyproj
+geopy
+streamlit-js-eval
 # konlpy # Optional for Phase 2

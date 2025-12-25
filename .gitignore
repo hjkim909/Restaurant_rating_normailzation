@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+restaurant_cache.json
+api_usage.csv
+.agent/

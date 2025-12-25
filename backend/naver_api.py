@@ -101,7 +101,7 @@ class NaverPlaceAPI:
             else:
                 sub_query = f"{query} {cat}"
                 
-            req_size = 5
+            req_size = 50
             params = {
                 "query": sub_query,
                 "display": req_size,
