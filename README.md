@@ -13,7 +13,7 @@
 - **Language**: Python 3.9+
 - **Frontend**: Streamlit
 - **API**: Naver Search API (Local)
-- **Deployment**: Localhost (or Streamlit Cloud)
+- **Deployment**: [Streamlit Community Cloud](DEPLOYMENT.md)
 
 ## 🚀 시작하기
 
