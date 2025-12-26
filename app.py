@@ -141,7 +141,31 @@ def main():
                 if not CLIENT_ID: st.warning("데모 모드: API 키 설정을 확인해주세요.")
             
             processor = DataProcessor()
-            st.session_state.processed_results = processor.process_places(items)
+            processed_temp = processor.process_places(items)
+            
+            # 🟢 RADIUS FILTERING (500m)
+            # Only filter if we have valid user coordinates matching the current view
+            if use_geo and location_coords and location == st.session_state.current_location:
+                 from backend.geo_utils import calculate_distance
+                 # Filter only if explicitly using current location
+                 # (If user manually selected 'Gangnam', we assume they want all Gangnam results)
+                 
+                 filtered_items = []
+                 user_lat, user_lng = location_coords
+                 
+                 for item in processed_temp:
+                     dist = calculate_distance(user_lat, user_lng, item.get('mapx'), item.get('mapy'))
+                     if dist <= 500: # 500 meters
+                         filtered_items.append(item)
+                 
+                 # Feedback to user
+                 if filtered_items:
+                     st.info(f"📍 현재 위치 반경 500m 이내 맛집 {len(filtered_items)}개를 찾았습니다.")
+                     processed_temp = filtered_items
+                 else:
+                     st.warning("⚠️ 반경 500m 이내에 식당이 없어 검색 범위를 넓혀서 보여드립니다.")
+            
+            st.session_state.processed_results = processed_temp
             
             # 2. Extract Menus (Only once per fetch)
             recommender = MenuRecommender()
