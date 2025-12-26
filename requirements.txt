@@ -7,4 +7,5 @@ python-dotenv
 pyproj
 geopy
 streamlit-js-eval
+pyproj
 # konlpy # Optional for Phase 2
