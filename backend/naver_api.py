@@ -198,15 +198,23 @@ class NaverPlaceAPI:
         # Check if query contains any of the keywords
         detected_categories = [k for k in detailed_keywords if k in query]
         if detected_categories:
-            # If user already specified "Samsun Gukbap", we probably shouldn't search "Pizza".
-            # But the user might want "similar" things? 
-            # The current App logic passes "Location + Category" to query.
-            # If user selected "Korean", query is "Gangnam Korean".
-            # Then we should only use Korean keywords?
-            # Refining target_keywords based on typical categories might be too complex for this single file.
-            # Let's just SEARCH ALL. The results for "Gangnam Korean Pizza" will likely be empty or auto-corrected by Naver.
-            # We rely on Naver's smartness.
-            pass
+            # Hybrid Search Strategy:
+            # If the user specifically asks for "Samsun Gukbap", we focus our limited API calls 
+            # on "Korean", "Gukbap" related keywords rather than spending quota on "Pizza".
+            
+            # However, we must be careful. If user asks "Gangnam delicious places", detected is empty -> Search All.
+            # If user asks "Gangnam Date", detected is empty -> Search All.
+            # If user asks "Gangnam Pizza", detected is ["Pizza"] -> Search only Pizza related.
+            
+            print(f"🎯 Precise Query Detected: Found categories {detected_categories}. Improving efficiency.")
+            
+            # Filter target_keywords to only include those that are RELEVANT to the detected categories.
+            # Simple approach: Only search for the detected specific keywords? 
+            # Better approach: If specific keyword is found, search that AND related broad categories.
+            # But our `detailed_keywords` list is flat.
+            
+            # Let's just narrow down to the detected ones to be strictly efficient as per request.
+            target_keywords = detected_categories
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             future_to_keyword = {executor.submit(fetch_category, kw): kw for kw in target_keywords}
