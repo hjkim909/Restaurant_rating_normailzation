@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: model_decision
 ---
 
 # API Integration Project Rules
@@ -49,3 +49,8 @@ trigger: always_on
 - Log all API calls with: timestamp, endpoint, params, status
 - Log to CSV file for easy analysis
 - Rotate logs weekly
+
+## Documentation & Knowledge Management
+- **Always-on Update**: Every time a functional change is made, update the corresponding documentation (e.g., `README.md`, `PRD.md`, or API docs).
+- **History Tracking**: Briefly summarize what was changed and why in the 'Progress' section of the project documentation.
+- **Sync check**: Ensure that `AGENTS.md` (role definitions) remains consistent with the actual project structure after any major refactoring.

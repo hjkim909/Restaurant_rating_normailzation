@@ -9,30 +9,34 @@ class MenuRecommender:
             "전문점", "요리", "집", "카페", "디저트", "입구", "거리", "역"
         }
 
-    def extract_top_menus(self, places, top_n=5):
+    def extract_top_menus(self, places, top_n=15, dislikes=None, favorites=None):
         """
         Extract popular menu keywords from a list of places.
-        Focuses on places with valid lunch scores.
+        - dislikes: list of keywords to exclude
+        - favorites: list of keywords to boost/prioritize
         """
-        # Filter for decent lunch places (score >= 50)
-        # target_places = [p for p in places if p.get('lunch_score', 0) >= 50]
-        # PIVOT: Use all places because Search API doesn't provide enough text for NLP scoring 
         target_places = places
         
         if not target_places:
             return []
+            
+        dislikes = set(dislikes) if dislikes else set()
+        favorites = set(favorites) if favorites else set()
 
         keywords = []
         
         for place in target_places:
             # 1. Extract from Category
-            # Format often: "한식 > 찌개,전골" or just "김치찌개"
             category = place.get('category', '')
             if category:
-                # Split by '>' or ','
                 parts = re.split(r'[>,]', category)
                 for part in parts:
                     clean_part = part.strip()
+                    
+                    # Filtering: Check if contained in dislikes
+                    if any(bad in clean_part for bad in dislikes):
+                        continue
+                        
                     if len(clean_part) > 1 and clean_part not in self.stop_words:
                         keywords.append(clean_part)
             
@@ -50,6 +54,11 @@ class MenuRecommender:
         # Count frequencies
         counter = Counter(keywords)
         
+        # Boosting: Multiply count for favorites
+        for key in counter:
+            if any(fav in key for fav in favorites):
+                counter[key] *= 3 # Boost weight
+
         # PIVOT: Random variety
         # Get top 50 candidates
         candidates = [item for item, count in counter.most_common(50)]

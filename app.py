@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from backend.naver_api import NaverPlaceAPI
 from backend.data import DataProcessor
 from backend.menu_recommender import MenuRecommender
+from backend.user_prefs import UserPreferences
 from streamlit_js_eval import get_geolocation
 from backend.geo_utils import get_address_from_coords
 
@@ -97,6 +98,34 @@ def main():
             ["한식", "양식", "중식", "일식", "분식", "아시아"],
             default=[]
         )
+
+        st.divider()
+        with st.expander("👅 내 입맛 설정 (My Taste)"):
+            prefs = UserPreferences()
+            
+            # Dislikes
+            current_dislikes = prefs.get_dislikes()
+            new_dislikes = st.multiselect(
+                "❌ 싫어하는 메뉴 키워드 (제외)",
+                options=list(set(current_dislikes + ["오이", "고수", "마라", "회", "곱창", "가지"])),
+                default=current_dislikes
+            )
+            
+            # Favorites
+            current_favorites = prefs.get_favorites()
+            new_favorites = st.multiselect(
+                "❤️ 좋아하는 메뉴 키워드 (추천 UP)",
+                options=list(set(current_favorites + ["고기", "치즈", "매운", "딸기", "초밥", "떡볶이"])),
+                default=current_favorites
+            )
+            
+            if new_dislikes != current_dislikes or new_favorites != current_favorites:
+                prefs.save_preferences(new_dislikes, new_favorites)
+                st.success("취향이 저장되었습니다! (다음 검색부터 적용)")
+                # If we want immediate effect on MENUS (not api call), we might just rerun if data exists
+                if st.session_state.processed_results:
+                     st.session_state.top_menus = [] # Force re-extraction
+                     st.rerun()
         
     # Main Logic
     # 1. Fetch Data
@@ -169,7 +198,14 @@ def main():
             
             # 2. Extract Menus (Only once per fetch)
             recommender = MenuRecommender()
-            st.session_state.top_menus = recommender.extract_top_menus(st.session_state.processed_results, top_n=15)
+            # Load fresh prefs
+            current_prefs = UserPreferences()
+            st.session_state.top_menus = recommender.extract_top_menus(
+                st.session_state.processed_results, 
+                top_n=15, 
+                dislikes=current_prefs.get_dislikes(),
+                favorites=current_prefs.get_favorites()
+            )
 
     
     # Use cached data
@@ -191,6 +227,8 @@ def main():
         st.markdown("### 🎲 못 고르겠다면?")
         if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
             if st.session_state.top_menus:
+                # Re-apply preference weight for random pick slightly? 
+                # Already done in extraction, but let's just pick one.
                 st.session_state.selected_menu = random.choice(st.session_state.top_menus)
             else:
                 st.error("추천할 메뉴 데이터가 부족해요.")
