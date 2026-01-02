@@ -31,6 +31,10 @@
 3. **Local DB & Performance**:
    - 검색 결과는 로컬 JSON 파일(`restaurant_cache.json`)에 저장하여 2회차부터는 **0.1초 로딩**.
    - 중복 식당(ex. 쉑쉑버거 도배) 제거 로직 적용.
+4. **Smart Radius (자동 확장)**:
+   - 500m 이내에 결과가 없으면 자동으로 1km, 2km로 검색 반경을 넓힘.
+   - 제주도 등 데이터 희소 지역에서도 빈 화면이 뜨지 않도록 보장.
+
 
 ---
 
@@ -75,9 +79,9 @@
 
 ## 5. 데이터 전략
 - **Input**: 네이버 검색 API (Query Expansion 전략 적용)
-- **Caching**: `restaurant_cache.json` (Local Persistent Cache)
+- **Caching**: `restaurant.db` (SQLite)
   - Key: 쿼리(지역명)
-  - Value: 식당 리스트 + Timestamp
+  - Value: 식당 리스트 (JSON) + Timestamp
   - Expiry: 24시간
 - **Processing**:
   - Stopwords 제거 (맛집, 전문점, 식당 등 불용어 제외)

@@ -12,15 +12,23 @@ from urllib.parse import quote
 API_CACHE = {}
 CACHE_DURATION = 3600  # 1 hour
 
+from backend.db_manager import DatabaseManager
+
 class NaverPlaceAPI:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
         self.base_url = "https://openapi.naver.com/v1/search/local.json"
         
-        # Persistent Cache File
-        self.cache_file = "restaurant_cache.json"
-        self._load_file_cache()
+        # Database Manager
+        self.db = DatabaseManager()
+        
+        # Legacy Migration
+        legacy_cache = "restaurant_cache.json"
+        if os.path.exists(legacy_cache):
+             print("📦 Migrating legacy JSON cache to SQLite...")
+             success, msg = self.db.migrate_from_json(legacy_cache)
+             print(f"Migration result: {msg}")
 
         # Setup logging (kept for general class logging, though _log_request now writes directly)
         logging.basicConfig(
@@ -30,23 +38,13 @@ class NaverPlaceAPI:
         )
         self.logger = logging.getLogger('NaverAPI')
 
-    def _load_file_cache(self):
-        if os.path.exists(self.cache_file):
-            try:
-                with open(self.cache_file, 'r', encoding='utf-8') as f:
-                    self.file_cache = json.load(f)
-            except Exception as e:
-                print(f"Error loading cache file: {e}. Initializing empty cache.")
-                self.file_cache = {}
-        else:
-            self.file_cache = {}
-
-    def _save_file_cache(self):
-        try:
-            with open(self.cache_file, 'w', encoding='utf-8') as f:
-                json.dump(self.file_cache, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            print(f"Failed to save cache: {e}")
+    # File cache methods removed in favor of DB
+    
+    def _get_headers(self):
+        return {
+            "X-Naver-Client-Id": self.client_id,
+            "X-Naver-Client-Secret": self.client_secret
+        }
 
     def _get_headers(self):
         return {
@@ -119,14 +117,14 @@ class NaverPlaceAPI:
         # Construct Cache Key
         cache_key = f"{query}_{search_mode}_v3" # v3 for clean concurrent strategy
         
-        # 1. Check File Cache (Skip if force_refresh is True)
-        if not force_refresh and cache_key in self.file_cache:
-            cached_entry = self.file_cache[cache_key]
-            if time.time() - cached_entry['timestamp'] < 86400:
-                print(f"✅ Local Cache Hit for '{cache_key}'")
+        # 1. Check DB Cache (Skip if force_refresh is True)
+        if not force_refresh:
+            cached_entry = self.db.get_cache(cache_key)
+            if cached_entry:
+                print(f"✅ Local Cache Hit (SQLite) for '{cache_key}'")
                 return {"items": cached_entry['items']}
             else:
-                print(f"⚠️ Cache expired for '{cache_key}', re-fetching...")
+                 pass # Cache miss or expired
 
         # 2. Category Explosion Strategy
         # Naver Local Search limits 'display' to 5 and 'start' parameter is unreliable.
@@ -233,11 +231,11 @@ class NaverPlaceAPI:
         print(f"  -> Aggregated {len(all_items)} unique items.")
 
         # 3. Save to Cache
-        self.file_cache[cache_key] = {
+        cache_data = {
             "timestamp": time.time(),
             "items": all_items
         }
-        self._save_file_cache()
+        self.db.save_cache(cache_key, cache_data)
         
         return {"items": all_items}
 

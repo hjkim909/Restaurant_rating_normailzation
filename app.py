@@ -172,27 +172,42 @@ def main():
             processor = DataProcessor()
             processed_temp = processor.process_places(items)
             
-            # 🟢 RADIUS FILTERING (500m)
+            # 🟢 SMART RADIUS FILTERING (Progressive Expansion)
             # Only filter if we have valid user coordinates matching the current view
             if use_geo and location_coords and location == st.session_state.current_location:
                  from backend.geo_utils import calculate_distance
                  # Filter only if explicitly using current location
-                 # (If user manually selected 'Gangnam', we assume they want all Gangnam results)
                  
-                 filtered_items = []
                  user_lat, user_lng = location_coords
                  
-                 for item in processed_temp:
-                     dist = calculate_distance(user_lat, user_lng, item.get('mapx'), item.get('mapy'))
-                     if dist <= 500: # 500 meters
-                         filtered_items.append(item)
+                 # Progressive check: 500m -> 1km -> 2km -> All
+                 radii = [500, 1000, 2000]
+                 found_radius = None
+                 filtered_items = []
+                 
+                 for r in radii:
+                     temp_items = []
+                     for item in processed_temp:
+                         dist = calculate_distance(user_lat, user_lng, item.get('mapx'), item.get('mapy'))
+                         if dist <= r:
+                             temp_items.append(item)
+                     
+                     if temp_items:
+                         filtered_items = temp_items
+                         found_radius = r
+                         break
                  
                  # Feedback to user
                  if filtered_items:
-                     st.info(f"📍 현재 위치 반경 500m 이내 맛집 {len(filtered_items)}개를 찾았습니다.")
+                     radius_text = f"{found_radius}m" if found_radius < 1000 else f"{found_radius/1000}km"
+                     if found_radius == 500:
+                        st.info(f"📍 현재 위치 반경 {radius_text} 이내 맛집 {len(filtered_items)}개를 찾았습니다.")
+                     else:
+                        st.warning(f"⚠️ 500m 이내에 식당이 없어 검색 범위를 **{radius_text}**까지 넓혔습니다. ({len(filtered_items)}개 발견)")
                      processed_temp = filtered_items
                  else:
-                     st.warning("⚠️ 반경 500m 이내에 식당이 없어 검색 범위를 넓혀서 보여드립니다.")
+                     st.error("⚠️ 반경 2km 이내에도 식당이 없어 검색된 모든 결과를 보여드립니다.")
+                     # Fallback to all items (no filtering)
             
             st.session_state.processed_results = processed_temp
             
