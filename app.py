@@ -270,7 +270,7 @@ def main():
             st.header(f"😋 오늘의 추천: [{target_menu}]")
             
             matched_places = [
-                p for p in processed_results 
+                p for p in st.session_state.processed_results 
                 if target_menu in p.get('category', '') or target_menu in p.get('title', '') or target_menu in p.get('description', '')
             ]
             
