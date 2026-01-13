@@ -2,6 +2,7 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import os
+import time
 import random
 from dotenv import load_dotenv
 from backend.naver_api import NaverPlaceAPI
@@ -92,37 +93,45 @@ def main():
         
         st.header("⚙️ 옵션")
 
-        # Mode Toggles (Fast vs AI)
-        col_mode1, col_mode2 = st.columns(2)
-        with col_mode1:
+        st.header("⚙️ 옵션")
+        
+        # Tabs for Modes
+        tab1, tab2 = st.tabs(["⚡️ 빠른 추천", "🤖 AI 미식가"])
+        
+        with tab1:
             use_hidden_gem = st.toggle("💎 숨은 맛집 찾기",
                                        help="활성화하면 리뷰순이 아닌 랜덤순으로 다양한 식당을 가져옵니다.")
+            use_ai_mode = False # Default in this tab
 
-        with col_mode2:
-            use_ai_mode = st.toggle(
-                "🤖 AI 추천 모드",
-                help="Gemini AI가 리뷰를 분석해서 맞춤 추천을 제공합니다 (10-30초 소요)"
-            )
-
-        # Validation: Show warning if AI mode enabled without API key
-        if use_ai_mode and not os.getenv("GEMINI_API_KEY"):
-            st.warning("⚠️ AI 모드를 사용하려면 .env 파일에 GEMINI_API_KEY를 설정해주세요.")
-            use_ai_mode = False
-
-        # AI Context Input (only show if AI mode enabled)
-        if use_ai_mode:
-            st.markdown("---")
-            st.markdown("#### 🗣️ AI에게 상황 설명하기 (선택)")
-            ai_context = st.text_input(
-                "예: '오늘 속이 안 좋아', '가볍게 먹고 싶어', '매운 거 땡겨'",
+        with tab2:
+            st.info("🤖 AI가 리뷰를 분석해서 맞춤 추천을 제공합니다.")
+            
+            # Validation: Show warning if AI mode enabled without API key
+            if not os.getenv("GEMINI_API_KEY"):
+                st.warning("⚠️ .env 파일에 GEMINI_API_KEY를 설정해주세요.")
+                ai_mode_ready = False
+            else:
+                ai_mode_ready = True
+            
+            # AI Context Input (Moved here)
+            ai_context = st.text_area(
+                "🗣️ AI에게 상황 설명하기",
                 value=st.session_state.get('ai_context', ''),
-                placeholder="원하는 메뉴나 상황을 자유롭게 입력하세요",
-                key="ai_context_input"
+                placeholder="예: '오늘 속이 안 좋아', '가볍게 먹고 싶어', '매운 거 땡겨'",
+                key="ai_context_input",
+                height=100
             )
-            if ai_context != st.session_state.get('ai_context', ''):
-                st.session_state.ai_context = ai_context
-                st.session_state.ai_recommendations = None  # Reset on context change
-            st.markdown("---")
+            
+            if st.button("🚀 AI 분석 시작", disabled=not ai_mode_ready, type="primary"):
+                 use_ai_mode = True
+                 st.session_state.ai_analyze_trigger = True # Trigger flag
+                 st.session_state.ai_context = ai_context
+                 st.session_state.ai_recommendations = None  # Reset for new analysis
+            else:
+                 # Check if we are already in AI results view
+                 use_ai_mode = st.session_state.get('ai_analyze_trigger', False)
+
+
 
         category_options = st.multiselect(
             "선호 종류 (선택 안 하면 전체)", 
@@ -194,7 +203,10 @@ def main():
     if (query != st.session_state.last_query) or (current_mode != st.session_state.last_mode) or need_refresh or not st.session_state.processed_results:
         st.session_state.last_query = query
         st.session_state.last_mode = current_mode
+        st.session_state.last_query = query
+        st.session_state.last_mode = current_mode
         st.session_state.selected_menu = None # Reset selection on new search
+        st.session_state.ai_selected_restaurants = None # Reset AI selection
 
         # Initialize both APIs
         naver_api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET) if CLIENT_ID and CLIENT_SECRET else None
@@ -379,6 +391,8 @@ def main():
                         type="primary"
                     ):
                         st.session_state.selected_menu = rec['menu']
+                        # Store specific restaurants linked to this recommendation
+                        st.session_state.ai_selected_restaurants = rec['restaurants']
                         st.rerun()
 
             # Show metadata
@@ -398,8 +412,9 @@ def main():
         with col_rand:
             st.markdown("### 🎲 못 고르겠다면?")
             if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
-                if st.session_state.top_menus:
+                if st.session_state.top_menus and len(st.session_state.top_menus) > 0:
                     st.session_state.selected_menu = random.choice(st.session_state.top_menus)
+                    st.session_state.ai_selected_restaurants = None # Clear AI selection
                 else:
                     st.error("추천할 메뉴 데이터가 부족해요.")
 
@@ -422,6 +437,7 @@ def main():
                     for i, menu in enumerate(row):
                         if cols[i].button(f"#{menu}", key=f"btn_{menu}", type="primary" if st.session_state.selected_menu == menu else "secondary"):
                             st.session_state.selected_menu = menu
+                            st.session_state.ai_selected_restaurants = None # Clear AI selection
             else:
                 st.info("메뉴를 추출하는 중입니다...")
 
@@ -433,10 +449,16 @@ def main():
         st.header(f"😋 오늘의 추천: [{target_menu}]")
         
         # Filter restaurants
-        matched_places = [
-            p for p in processed_results 
-            if target_menu in p.get('category', '') or target_menu in p.get('title', '') or target_menu in p.get('description', '')
-        ]
+        # 1. Use AI-linked restaurants if available (Precision match)
+        if st.session_state.get('ai_selected_restaurants'):
+            matched_places = st.session_state.ai_selected_restaurants
+            st.info(f"🤖 AI가 '{target_menu}' 메뉴를 분석한 식당들을 보여드립니다.")
+        # 2. Otherwise use string matching (Fallback/Fast mode)
+        else:
+            matched_places = [
+                p for p in processed_results 
+                if target_menu in p.get('category', '') or target_menu in p.get('title', '') or target_menu in p.get('description', '')
+            ]
         
         if matched_places:
             c1, c2 = st.columns([1, 1])

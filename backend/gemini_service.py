@@ -174,7 +174,8 @@ class GeminiRecommendationService:
         results = []
 
         # Use ThreadPoolExecutor for parallel API calls
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        # Reduced workers to avoid potential rate limiting or context switching issues with Gemini
+        with ThreadPoolExecutor(max_workers=3) as executor:
             # Submit all analysis tasks
             future_to_restaurant = {
                 executor.submit(
