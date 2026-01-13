@@ -95,421 +95,182 @@ def main():
 
         st.header("⚙️ 옵션")
         
-        # Tabs for Modes
-        tab1, tab2 = st.tabs(["⚡️ 빠른 추천", "🤖 AI 미식가"])
+    # Layout: Top Level Tabs
+    tab_fast, tab_ai = st.tabs(["⚡️ 빠른 추천", "🤖 AI 미식가"])
+
+    # ---------------------------------------------------------
+    # TAB 1: FAST MODE (Original Functionality)
+    # ---------------------------------------------------------
+    with tab_fast:
+        st.caption("🚀 카테고리 기반으로 빠르게 메뉴를 추천해드립니다.")
         
-        with tab1:
-            use_hidden_gem = st.toggle("💎 숨은 맛집 찾기",
-                                       help="활성화하면 리뷰순이 아닌 랜덤순으로 다양한 식당을 가져옵니다.")
-            use_ai_mode = False # Default in this tab
-
-        with tab2:
-            st.info("🤖 AI가 리뷰를 분석해서 맞춤 추천을 제공합니다.")
+        # State Checking for Fast Mode
+        if 'fast_selected_menu' not in st.session_state:
+            st.session_state.fast_selected_menu = None
             
-            # Validation: Show warning if AI mode enabled without API key
-            if not os.getenv("GEMINI_API_KEY"):
-                st.warning("⚠️ .env 파일에 GEMINI_API_KEY를 설정해주세요.")
-                ai_mode_ready = False
-            else:
-                ai_mode_ready = True
-            
-            # AI Context Input (Moved here)
-            ai_context = st.text_area(
-                "🗣️ AI에게 상황 설명하기",
-                value=st.session_state.get('ai_context', ''),
-                placeholder="예: '오늘 속이 안 좋아', '가볍게 먹고 싶어', '매운 거 땡겨'",
-                key="ai_context_input",
-                height=100
-            )
-            
-            if st.button("🚀 AI 분석 시작", disabled=not ai_mode_ready, type="primary"):
-                 use_ai_mode = True
-                 st.session_state.ai_analyze_trigger = True # Trigger flag
-                 st.session_state.ai_context = ai_context
-                 st.session_state.ai_recommendations = None  # Reset for new analysis
-            else:
-                 # Check if we are already in AI results view
-                 use_ai_mode = st.session_state.get('ai_analyze_trigger', False)
-
-
-
-        category_options = st.multiselect(
-            "선호 종류 (선택 안 하면 전체)", 
-            ["한식", "양식", "중식", "일식", "분식", "아시아"],
-            default=[]
-        )
-
-        st.divider()
-        with st.expander("👅 내 입맛 설정 (My Taste)"):
-            prefs = UserPreferences()
-            
-            # Dislikes
-            current_dislikes = prefs.get_dislikes()
-            new_dislikes = st.multiselect(
-                "❌ 싫어하는 메뉴 키워드 (제외)",
-                options=list(set(current_dislikes + ["오이", "고수", "마라", "회", "곱창", "가지"])),
-                default=current_dislikes
-            )
-            
-            # Favorites
-            current_favorites = prefs.get_favorites()
-            new_favorites = st.multiselect(
-                "❤️ 좋아하는 메뉴 키워드 (추천 UP)",
-                options=list(set(current_favorites + ["고기", "치즈", "매운", "딸기", "초밥", "떡볶이"])),
-                default=current_favorites
-            )
-            
-            if new_dislikes != current_dislikes or new_favorites != current_favorites:
-                prefs.save_preferences(new_dislikes, new_favorites)
-                st.success("취향이 저장되었습니다! (다음 검색부터 적용)")
-                # If we want immediate effect on MENUS (not api call), we might just rerun if data exists
-                if st.session_state.processed_results:
-                     st.session_state.top_menus = [] # Force re-extraction
-                     st.rerun()
-        
-    # Main Logic
-    # 1. Fetch Data
-    query = f"{location} 맛집"
-    if category_options:
-        query = f"{location} {' '.join(category_options)} 맛집"
-
-    # Initialize session state for data persistence
-    if 'processed_results' not in st.session_state:
-        st.session_state.processed_results = []
-    if 'top_menus' not in st.session_state:
-        st.session_state.top_menus = []
-    if 'last_query' not in st.session_state:
-        st.session_state.last_query = ""
-    if 'last_mode' not in st.session_state: # Track mode changes
-        st.session_state.last_mode = ""
-
-    # Initialize AI mode session state
-    if 'ai_recommendations' not in st.session_state:
-        st.session_state.ai_recommendations = None
-    if 'ai_context' not in st.session_state:
-        st.session_state.ai_context = ""
-    if 'last_ai_mode' not in st.session_state:
-        st.session_state.last_ai_mode = False
-
-    # Clear cache only if requested explicitly or implicitly by changing options
-    need_refresh = False
-    if st.button("🔄 데이터 다시 불러오기", type="secondary"):
-        st.cache_data.clear() # Clear streamlit cache
-        need_refresh = True
-        
-    current_mode = 'random' if use_hidden_gem else 'popular'
-    
-    # Check if we need to fetch new data (Query changed, Mode changed, or Refresh requested)
-    if (query != st.session_state.last_query) or (current_mode != st.session_state.last_mode) or need_refresh or not st.session_state.processed_results:
-        st.session_state.last_query = query
-        st.session_state.last_mode = current_mode
-        st.session_state.last_query = query
-        st.session_state.last_mode = current_mode
-        st.session_state.selected_menu = None # Reset selection on new search
-        st.session_state.ai_selected_restaurants = None # Reset AI selection
-
-        # Initialize both APIs
-        naver_api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET) if CLIENT_ID and CLIENT_SECRET else None
-        kakao_api = KakaoPlaceAPI(KAKAO_REST_API_KEY) if KAKAO_REST_API_KEY else None
-
-        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (네이버 + 카카오)"):
-            all_items = []
-
-            # Fetch from Naver
-            if naver_api and "your_client_id" not in CLIENT_ID:
-                try:
-                    naver_data = naver_api.search_places(query, display=50, search_mode=current_mode, force_refresh=need_refresh)
-                    naver_items = naver_data['items'] if naver_data else []
-                    all_items.extend(naver_items)
-                    print(f"✅ Naver: {len(naver_items)} restaurants")
-                except Exception as e:
-                    st.warning(f"네이버 API 오류: {str(e)[:100]}")
-
-            # Fetch from Kakao
-            if kakao_api:
-                try:
-                    kakao_data = kakao_api.search_places(query, size=15, search_mode=current_mode, force_refresh=need_refresh)
-                    kakao_items = kakao_data['items'] if kakao_data else []
-                    all_items.extend(kakao_items)
-                    print(f"✅ Kakao: {len(kakao_items)} restaurants")
-                except Exception as e:
-                    st.warning(f"카카오 API 오류: {str(e)[:100]}")
-
-            # Fallback to mock data if both APIs fail
-            if not all_items:
-                if not CLIENT_ID and not KAKAO_REST_API_KEY:
-                    st.warning("데모 모드: API 키 설정을 확인해주세요. (.env 파일에 NAVER_CLIENT_ID, KAKAO_REST_API_KEY)")
-                all_items = MOCK_DATA
-
-            # Deduplicate across both APIs (same restaurant from different sources)
-            items = all_items  # Deduplication happens in data processor based on coordinates
-            
-            processor = DataProcessor()
-            processed_temp = processor.process_places(items)
-            
-            # 🟢 SMART RADIUS FILTERING (Progressive Expansion)
-            # Only filter if we have valid user coordinates matching the current view
-            if use_geo and location_coords and location == st.session_state.current_location:
-                 from backend.geo_utils import calculate_distance
-                 # Filter only if explicitly using current location
-                 
-                 user_lat, user_lng = location_coords
-                 
-                 # Progressive check: 500m -> 1km -> 2km -> All
-                 radii = [500, 1000, 2000]
-                 found_radius = None
-                 filtered_items = []
-                 
-                 for r in radii:
-                     temp_items = []
-                     for item in processed_temp:
-                         dist = calculate_distance(user_lat, user_lng, item.get('mapx'), item.get('mapy'))
-                         if dist <= r:
-                             temp_items.append(item)
-                     
-                     if temp_items:
-                         filtered_items = temp_items
-                         found_radius = r
-                         break
-                 
-                 # Feedback to user
-                 if filtered_items:
-                     radius_text = f"{found_radius}m" if found_radius < 1000 else f"{found_radius/1000}km"
-                     if found_radius == 500:
-                        st.info(f"📍 현재 위치 반경 {radius_text} 이내 맛집 {len(filtered_items)}개를 찾았습니다.")
-                     else:
-                        st.warning(f"⚠️ 500m 이내에 식당이 없어 검색 범위를 **{radius_text}**까지 넓혔습니다. ({len(filtered_items)}개 발견)")
-                     processed_temp = filtered_items
-                 else:
-                     st.error("⚠️ 반경 2km 이내에도 식당이 없어 검색된 모든 결과를 보여드립니다.")
-                     # Fallback to all items (no filtering)
-            
-            st.session_state.processed_results = processed_temp
-            
-            # 2. Extract Menus (Only once per fetch)
-            recommender = MenuRecommender()
-            # Load fresh prefs
-            current_prefs = UserPreferences()
-            st.session_state.top_menus = recommender.extract_top_menus(
-                st.session_state.processed_results,
-                top_n=15,
-                dislikes=current_prefs.get_dislikes(),
-                favorites=current_prefs.get_favorites()
-            )
-
-    # AI Mode Processing
-    if use_ai_mode and (
-        st.session_state.ai_recommendations is None
-        or st.session_state.last_ai_mode != use_ai_mode
-    ):
-        st.session_state.last_ai_mode = use_ai_mode
-
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if gemini_api_key and st.session_state.processed_results:
-            from backend.gemini_service import GeminiRecommendationService
-
-            gemini_service = GeminiRecommendationService(gemini_api_key)
-
-            with st.spinner("🤖 AI가 리뷰를 분석하고 있습니다... (10-30초 소요)"):
-                progress_bar = st.progress(0)
-                status_text = st.empty()
-
-                try:
-                    # Sample 10 restaurants for analysis
-                    sample_restaurants = random.sample(
-                        st.session_state.processed_results,
-                        min(10, len(st.session_state.processed_results))
-                    )
-
-                    status_text.text(f"📊 {len(sample_restaurants)}개 식당의 리뷰를 분석 중...")
-                    progress_bar.progress(30)
-
-                    # Get AI recommendations
-                    ai_result = gemini_service.analyze_restaurants_for_menu(
-                        restaurants=sample_restaurants,
-                        user_context=st.session_state.ai_context if st.session_state.ai_context else None,
-                        max_restaurants=10
-                    )
-
-                    progress_bar.progress(90)
-                    status_text.text("✅ 분석 완료!")
-                    time.sleep(0.5)
-
-                    st.session_state.ai_recommendations = ai_result
-
-                    progress_bar.empty()
-                    status_text.empty()
-
-                except Exception as e:
-                    st.error(f"AI 분석 중 오류가 발생했습니다: {str(e)[:200]}")
-                    st.info("Fast Mode로 전환하여 기본 추천을 확인해보세요.")
-                    progress_bar.empty()
-                    status_text.empty()
-
-
-    # Use cached data
-    processed_results = st.session_state.processed_results
-    
-    # Show Cache Stats (Simple indicator)
-    if processed_results:
-        st.caption(f"💾 로컬 데이터베이스 사용 중 ({len(processed_results)}개 식당 저장됨)")
-
-    
-    # State management for selection
-    if 'selected_menu' not in st.session_state:
-        st.session_state.selected_menu = None
-
-    # Layout: Top Section - AI Mode or Fast Mode Display
-    if use_ai_mode and st.session_state.ai_recommendations:
-        # AI MODE DISPLAY
-        st.markdown("### 🤖 AI 맞춤 추천")
-
-        ai_result = st.session_state.ai_recommendations
-
-        # Show conversational response if available
-        if ai_result.get('conversational_response'):
-            st.info(f"💬 {ai_result['conversational_response']}")
-
-        # Show top recommendations
-        recommendations = ai_result.get('recommendations', [])
-        if recommendations:
-            for idx, rec in enumerate(recommendations[:5]):
-                with st.expander(
-                    f"**{idx+1}. {rec['menu']}** (신뢰도: {rec['confidence']*100:.0f}%)",
-                    expanded=(idx == 0)
-                ):
-                    st.markdown(f"**📝 추천 이유:**\n{rec['reasoning']}")
-
-                    if rec.get('review_summary'):
-                        st.markdown(f"**🗣️ 리뷰 요약:**\n{rec['review_summary']}")
-
-                    # Button to select this menu
-                    if st.button(
-                        f"'{rec['menu']}' 식당 보기",
-                        key=f"ai_select_{idx}",
-                        type="primary"
-                    ):
-                        st.session_state.selected_menu = rec['menu']
-                        # Store specific restaurants linked to this recommendation
-                        st.session_state.ai_selected_restaurants = rec['restaurants']
-                        st.rerun()
-
-            # Show metadata
-            with st.expander("🔍 분석 상세 정보"):
-                metadata = ai_result.get('metadata', {})
-                st.caption(f"처리 시간: {metadata.get('processing_time', 0):.1f}초")
-                st.caption(f"분석한 식당 수: {metadata.get('analyzed_count', 0)}개")
-                if metadata.get('search_queries'):
-                    st.caption(f"검색 쿼리: {len(metadata['search_queries'])}개 실행")
-        else:
-            st.warning("AI 추천 결과가 없습니다. Fast Mode로 전환해보세요.")
-
-    else:
-        # FAST MODE DISPLAY (Original code)
         col_rand, col_chips = st.columns([1, 2])
 
         with col_rand:
             st.markdown("### 🎲 못 고르겠다면?")
-            if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
+            if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True, key="btn_random_fast"):
                 if st.session_state.top_menus and len(st.session_state.top_menus) > 0:
-                    st.session_state.selected_menu = random.choice(st.session_state.top_menus)
-                    st.session_state.ai_selected_restaurants = None # Clear AI selection
+                    st.session_state.fast_selected_menu = random.choice(st.session_state.top_menus)
                 else:
                     st.error("추천할 메뉴 데이터가 부족해요.")
 
         with col_chips:
             st.markdown(f"### 🔥 {location} 인기 메뉴")
-            # Display chips nicely
             if st.session_state.top_menus:
-                # CSS hack for horizontal scroll or nice wrapping chips
+                 # CSS hack for chips
                 st.markdown("""
                 <style>
                 .stButton button {border-radius: 20px;}
                 </style>
                 """, unsafe_allow_html=True)
-
-                # Grouping buttons in rows of 5
+                
                 menus_to_show = st.session_state.top_menus
                 rows = [menus_to_show[i:i + 5] for i in range(0, len(menus_to_show), 5)]
                 for row in rows:
                     cols = st.columns(len(row))
                     for i, menu in enumerate(row):
-                        if cols[i].button(f"#{menu}", key=f"btn_{menu}", type="primary" if st.session_state.selected_menu == menu else "secondary"):
-                            st.session_state.selected_menu = menu
-                            st.session_state.ai_selected_restaurants = None # Clear AI selection
+                        if cols[i].button(f"#{menu}", key=f"btn_fast_{menu}", type="secondary"):
+                            st.session_state.fast_selected_menu = menu
             else:
                 st.info("메뉴를 추출하는 중입니다...")
-
-    st.divider()
-
-    # Layout: Bottom Section (Results)
-    if st.session_state.selected_menu:
-        target_menu = st.session_state.selected_menu
-        st.header(f"😋 오늘의 추천: [{target_menu}]")
         
-        # Filter restaurants
-        # 1. Use AI-linked restaurants if available (Precision match)
-        if st.session_state.get('ai_selected_restaurants'):
-            matched_places = st.session_state.ai_selected_restaurants
-            st.info(f"🤖 AI가 '{target_menu}' 메뉴를 분석한 식당들을 보여드립니다.")
-        # 2. Otherwise use string matching (Fallback/Fast mode)
-        else:
+        st.divider()
+        
+        # Fast Mode Results
+        if st.session_state.fast_selected_menu:
+            target_menu = st.session_state.fast_selected_menu
+            st.header(f"😋 오늘의 추천: [{target_menu}]")
+            
             matched_places = [
                 p for p in processed_results 
                 if target_menu in p.get('category', '') or target_menu in p.get('title', '') or target_menu in p.get('description', '')
             ]
-        
-        if matched_places:
-            c1, c2 = st.columns([1, 1])
-            with c1:
-                st.caption(f"근처에 **{len(matched_places)}곳**의 식당이 있습니다.")
-                for i, place in enumerate(matched_places):
-                    clean_title = clean_html(place['title'])
-                    # User request: Link to Naver Map, not homepage
-                    # Construct search URL for Naver Map
-                    # query format: https://map.naver.com/v5/search/{name}
-                    from urllib.parse import quote
-                    encoded_query = quote(f"{location} {clean_title}") # Include location to be precise
-                    link = f"https://map.naver.com/v5/search/{encoded_query}"
-                    
-                    st.markdown(f"""
-                    **{i+1}. [{clean_title}]({link})** <span style="color:#888">({place.get('category')})</span>  
-                    📍 {place.get('roadAddress', place.get('address'))}
-                    """, unsafe_allow_html=True)
             
-            with c2:
-                # Map Visualization
-                # Calculate center from matched places if coords exist
-                lats = [p['lat'] for p in matched_places if 'lat' in p]
-                lngs = [p['lng'] for p in matched_places if 'lng' in p]
-                
-                if lats and lngs:
-                    center = [sum(lats)/len(lats), sum(lngs)/len(lngs)]
-                else:
-                    center = [37.4979, 127.0276] # Default Gangnam
-                    
-                m = folium.Map(location=center, zoom_start=14)
-                
-                # Add markers
-                for p in matched_places:
-                    if 'lat' in p and 'lng' in p:
-                       folium.Marker(
-                           [p['lat'], p['lng']], 
-                           popup=clean_html(p['title']), 
-                           tooltip=p.get('category')
-                       ).add_to(m)
-                    
-                st_folium(m, height=300, use_container_width=True)
+            if matched_places:
+                display_results(matched_places, location, target_menu)
+            else:
+                st.warning(f"'{target_menu}' 관련 식당을 찾지 못했어요.")
         else:
-            st.warning(f"아쉽게도 '{target_menu}' 관련 식당을 찾지 못했어요. 다른 메뉴를 골라보세요!")
+             st.markdown("""
+            <div style="text-align: center; padding: 30px; color: #666;">
+                <h3>👆 위에서 메뉴를 선택하거나 랜덤 버튼을 눌러보세요!</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # ---------------------------------------------------------
+    # TAB 2: AI MODE (Gemini Integration)
+    # ---------------------------------------------------------
+    with tab_ai:
+        st.caption("🤖 Gemini AI가 리뷰를 심층 분석하여 맞춤 메뉴를 제안합니다.")
+        
+        # Validation
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        if not gemini_key:
+            st.warning("⚠️ .env 파일에 GEMINI_API_KEY를 설정해주세요.")
+        
+        # AI Context Input
+        ai_context = st.text_area(
+            "🗣️ AI에게 상황 설명하기",
+            value=st.session_state.get('ai_context', ''),
+            placeholder="예: '오늘 속이 안 좋아', '가볍게 먹고 싶어', '매운 거 땡겨'",
+            key="ai_context_input",
+            height=100
+        )
+        
+        col_ai_btn, _ = st.columns([1, 4])
+        with col_ai_btn:
+            if st.button("🚀 AI 분석 시작", disabled=not gemini_key, type="primary", key="btn_ai_start"):
+                st.session_state.ai_analyze_trigger = True
+                st.session_state.ai_context = ai_context
+                st.session_state.ai_recommendations = None
+        
+        # AI Logic Execution
+        if st.session_state.get('ai_analyze_trigger', False) and gemini_key:
+            if st.session_state.ai_recommendations is None:
+                from backend.gemini_service import GeminiRecommendationService
+                gemini_service = GeminiRecommendationService(gemini_key)
+                
+                with st.spinner("🤖 AI가 맛집 리뷰를 분석하고 있습니다... (최대 30초)"):
+                    try:
+                        # Logic identical to previous implementation but isolated here
+                        sample_restaurants = random.sample(
+                            st.session_state.processed_results,
+                            min(10, len(st.session_state.processed_results))
+                        )
+                        ai_result = gemini_service.analyze_restaurants_for_menu(
+                            restaurants=sample_restaurants,
+                            user_context=st.session_state.ai_context,
+                            max_restaurants=10
+                        )
+                        st.session_state.ai_recommendations = ai_result
+                    except Exception as e:
+                        st.error(f"AI 분석 중 오류: {str(e)}")
             
-    else:
-        st.markdown("""
-        <div style="text-align: center; padding: 50px; color: #666;">
-            <h3>👆 위에서 메뉴를 선택하거나 랜덤 버튼을 눌러보세요!</h3>
-            <p>현재 위치 주변의 맛집 데이터를 분석해서 리스트를 보여드립니다.</p>
-        </div>
-        """, unsafe_allow_html=True)
+            # AI Results Display
+            if st.session_state.ai_recommendations:
+                ai_result = st.session_state.ai_recommendations
+                if ai_result.get('conversational_response'):
+                    st.info(f"💬 {ai_result['conversational_response']}")
+                
+                if ai_result.get('recommendations'):
+                    for idx, rec in enumerate(ai_result['recommendations'][:5]):
+                        with st.expander(f"**{idx+1}. {rec['menu']}** (신뢰도: {rec['confidence']*100:.0f}%)", expanded=(idx==0)):
+                            st.markdown(f"**📝 추천 이유:**\n{rec['reasoning']}")
+                            if rec.get('review_summary'):
+                                st.markdown(f"**🗣️ 리뷰 요약:**\n{rec['review_summary']}")
+                            
+                            # View Restaurants Button
+                            if st.button(f"'{rec['menu']}' 식당 보기", key=f"ai_view_{idx}"):
+                                st.session_state.ai_selected_restaurants = rec['restaurants']
+                                st.session_state.ai_selected_menu_name = rec['menu']
+
+                    # Check if user selected a menu to view details
+                    if st.session_state.get('ai_selected_restaurants'):
+                         st.divider()
+                         target_name = st.session_state.get('ai_selected_menu_name', '추천 메뉴')
+                         st.header(f"🧑‍🍳 AI 추천 식당: [{target_name}]")
+                         display_results(st.session_state.ai_selected_restaurants, location, target_name)
+                else:
+                    st.warning("추천할 메뉴를 찾지 못했습니다.")
+
+def display_results(places, location, target_menu):
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        st.caption(f"**{len(places)}곳**의 식당을 찾았습니다.")
+        for i, place in enumerate(places):
+            clean_title = clean_html(place['title'])
+            from urllib.parse import quote
+            encoded_query = quote(f"{location} {clean_title}")
+            link = f"https://map.naver.com/v5/search/{encoded_query}"
+            
+            st.markdown(f"""
+            **{i+1}. [{clean_title}]({link})** <span style="color:#888">({place.get('category')})</span>  
+            📍 {place.get('roadAddress', place.get('address'))}
+            """, unsafe_allow_html=True)
+    
+    with c2:
+        lats = [p['lat'] for p in places if 'lat' in p]
+        lngs = [p['lng'] for p in places if 'lng' in p]
+        
+        if lats and lngs:
+            center = [sum(lats)/len(lats), sum(lngs)/len(lngs)]
+        else:
+            center = [37.4979, 127.0276]
+            
+        m = folium.Map(location=center, zoom_start=14)
+        for p in places:
+            if 'lat' in p and 'lng' in p:
+               folium.Marker(
+                   [p['lat'], p['lng']], 
+                   popup=clean_html(p['title']), 
+                   tooltip=p.get('category')
+               ).add_to(m)
+            
+        st_folium(m, height=300, use_container_width=True)
 
 if __name__ == "__main__":
     main()
