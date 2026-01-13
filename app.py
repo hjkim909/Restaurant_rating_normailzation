@@ -5,6 +5,7 @@ import os
 import random
 from dotenv import load_dotenv
 from backend.naver_api import NaverPlaceAPI
+from backend.kakao_api import KakaoPlaceAPI
 from backend.data import DataProcessor
 from backend.menu_recommender import MenuRecommender
 from backend.user_prefs import UserPreferences
@@ -24,6 +25,7 @@ st.set_page_config(
 # Initialize Backend
 CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+KAKAO_REST_API_KEY = os.getenv("KAKAO_REST_API_KEY")
 
 # Mock data for demo
 MOCK_DATA = [
@@ -156,18 +158,42 @@ def main():
         st.session_state.last_query = query
         st.session_state.last_mode = current_mode
         st.session_state.selected_menu = None # Reset selection on new search
-        
-        api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET)
-        
-        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (모드: {'숨은 맛집' if use_hidden_gem else '인기 맛집'})"):
-            if CLIENT_ID and CLIENT_SECRET and "your_client_id" not in CLIENT_ID:
-                # API handles file caching internally now
-                # Pass need_refresh to force API to ignore file cache
-                raw_data = api.search_places(query, display=50, search_mode=current_mode, force_refresh=need_refresh) 
-                items = raw_data['items'] if raw_data else []
-            else:
-                items = MOCK_DATA
-                if not CLIENT_ID: st.warning("데모 모드: API 키 설정을 확인해주세요.")
+
+        # Initialize both APIs
+        naver_api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET) if CLIENT_ID and CLIENT_SECRET else None
+        kakao_api = KakaoPlaceAPI(KAKAO_REST_API_KEY) if KAKAO_REST_API_KEY else None
+
+        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (네이버 + 카카오)"):
+            all_items = []
+
+            # Fetch from Naver
+            if naver_api and "your_client_id" not in CLIENT_ID:
+                try:
+                    naver_data = naver_api.search_places(query, display=50, search_mode=current_mode, force_refresh=need_refresh)
+                    naver_items = naver_data['items'] if naver_data else []
+                    all_items.extend(naver_items)
+                    print(f"✅ Naver: {len(naver_items)} restaurants")
+                except Exception as e:
+                    st.warning(f"네이버 API 오류: {str(e)[:100]}")
+
+            # Fetch from Kakao
+            if kakao_api:
+                try:
+                    kakao_data = kakao_api.search_places(query, size=15, search_mode=current_mode, force_refresh=need_refresh)
+                    kakao_items = kakao_data['items'] if kakao_data else []
+                    all_items.extend(kakao_items)
+                    print(f"✅ Kakao: {len(kakao_items)} restaurants")
+                except Exception as e:
+                    st.warning(f"카카오 API 오류: {str(e)[:100]}")
+
+            # Fallback to mock data if both APIs fail
+            if not all_items:
+                if not CLIENT_ID and not KAKAO_REST_API_KEY:
+                    st.warning("데모 모드: API 키 설정을 확인해주세요. (.env 파일에 NAVER_CLIENT_ID, KAKAO_REST_API_KEY)")
+                all_items = MOCK_DATA
+
+            # Deduplicate across both APIs (same restaurant from different sources)
+            items = all_items  # Deduplication happens in data processor based on coordinates
             
             processor = DataProcessor()
             processed_temp = processor.process_places(items)

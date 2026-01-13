@@ -108,14 +108,16 @@ class NaverPlaceAPI:
     def search_places(self, query, display=5, search_mode='popular', force_refresh=False):
         """
         Search for places with persistent caching and deduplication.
-        Uses 'Category Explosion' strategy: querying many specific keywords in parallel
-        to overcome the API's 'display=5' per request limit.
+        Uses 'Category Explosion' + 'Location Subdivision' strategy:
+        - Subdivides major locations into smaller areas
+        - Queries many specific keywords in parallel
+        - Overcomes API's 'display=5' per request limit
         force_refresh: If True, ignore existing cache and fetch fresh data.
         """
         import concurrent.futures
-        
+
         # Construct Cache Key
-        cache_key = f"{query}_{search_mode}_v3" # v3 for clean concurrent strategy
+        cache_key = f"{query}_{search_mode}_v4" # v4 with location subdivision
         
         # 1. Check DB Cache (Skip if force_refresh is True)
         if not force_refresh:
@@ -126,10 +128,32 @@ class NaverPlaceAPI:
             else:
                  pass # Cache miss or expired
 
-        # 2. Category Explosion Strategy
+        # 2. Location Subdivision Strategy
+        # Subdivide major locations into smaller areas for better coverage
+        location_subdivisions = {
+            '강남역': ['강남역 1번출구', '강남역 10번출구', '강남역 11번출구', '강남역 CGV', '강남역 신논현역 사이', '역삼동 테헤란로', '역삼동 강남대로'],
+            '여의도역': ['여의도역 1번출구', '여의도역 3번출구', '여의도 IFC몰', '여의도 공원', '여의도 증권가', '여의도 국회의사당'],
+            '판교역': ['판교역 1번출구', '판교 테크노밸리', '판교 알파돔시티', '판교역 현대백화점', '삼평동'],
+            '성수역': ['성수역 1번출구', '성수역 2번출구', '성수 카페거리', '성수동 서울숲', '뚝섬역 근처'],
+            '을지로입구역': ['을지로입구역 1번출구', '을지로입구역 롯데백화점', '을지로2가', '을지로3가', '명동 근처'],
+            '역삼역': ['역삼역 1번출구', '역삼역 7번출구', '역삼동 강남대로', '역삼동 논현로', '역삼동 테헤란로'],
+            '오목교역': ['오목교역 1번출구', '오목교역 2번출구', '목동 근처', '양평동']
+        }
+
+        # Detect if query contains a major location
+        target_locations = [query]  # Default: use original query
+        for major_loc, subdivisions in location_subdivisions.items():
+            if major_loc in query:
+                # Replace major location with subdivisions
+                base_query = query.replace(major_loc, '{}')
+                target_locations = [base_query.format(sub_loc) for sub_loc in subdivisions]
+                print(f"🗺️  Location subdivision detected: {major_loc} → {len(subdivisions)} sub-locations")
+                break
+
+        # 3. Category Explosion Strategy
         # Naver Local Search limits 'display' to 5 and 'start' parameter is unreliable.
         # Solution: Query many detailed keywords to aggregate unique results.
-        
+
         detailed_keywords = [
             # Korean
             '한식', '국밥', '해장국', '삼겹살', '갈비', '곱창', '족발', '보쌈', '김치찌개', '된장찌개', '백반', '냉면', '칼국수',
@@ -146,22 +170,21 @@ class NaverPlaceAPI:
         ]
         
         all_items = []
-        seen_keys = set() 
-        
-        print(f"📡 Fetching live data via Category Explosion ({len(detailed_keywords)} keywords) for '{query}'...")
-        
-        def fetch_category(keyword):
+        seen_keys = set()
+
+        print(f"📡 Fetching live data via Location Subdivision ({len(target_locations)} locations) × Category Explosion ({len(detailed_keywords)} keywords)...")
+
+        def fetch_category(location_query, keyword):
             # Construct sub-query
-            # If query already contains keyword, skip appending to avoid redundancy if meaningful?
-            # E.g. query="강남역 국밥 맛집" and keyword="국밥" -> "강남역 국밥 맛집"
-            if keyword in query:
-                sub_query = query
+            # If query already contains keyword, skip appending to avoid redundancy
+            if keyword in location_query:
+                sub_query = location_query
             else:
                 # Insert keyword before '맛집' if possible, or just append
-                if '맛집' in query:
-                    sub_query = query.replace('맛집', f'{keyword} 맛집')
+                if '맛집' in location_query:
+                    sub_query = location_query.replace('맛집', f'{keyword} 맛집')
                 else:
-                    sub_query = f"{query} {keyword}"
+                    sub_query = f"{location_query} {keyword}"
             
             # Param Logic based on Mode
             sort_method = "comment"
@@ -214,21 +237,25 @@ class NaverPlaceAPI:
             # Let's just narrow down to the detected ones to be strictly efficient as per request.
             target_keywords = detected_categories
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            future_to_keyword = {executor.submit(fetch_category, kw): kw for kw in target_keywords}
-            
-            for future in concurrent.futures.as_completed(future_to_keyword):
+        # Execute parallel fetch for all location × keyword combinations
+        with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+            futures = []
+            for loc in target_locations:
+                for kw in target_keywords:
+                    futures.append(executor.submit(fetch_category, loc, kw))
+
+            for future in concurrent.futures.as_completed(futures):
                 items = future.result()
                 for item in items:
                     # Clean title for key
                     title_clean = item['title'].replace('<b>', '').replace('</b>', '')
                     unique_key = (item.get('mapx'), item.get('mapy'), title_clean)
-                    
+
                     if unique_key not in seen_keys:
                         seen_keys.add(unique_key)
                         all_items.append(item)
-        
-        print(f"  -> Aggregated {len(all_items)} unique items.")
+
+        print(f"  -> Aggregated {len(all_items)} unique restaurants from {len(target_locations)} locations × {len(target_keywords)} keywords = {len(target_locations) * len(target_keywords)} queries")
 
         # 3. Save to Cache
         cache_data = {

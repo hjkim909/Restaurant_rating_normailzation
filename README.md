@@ -17,7 +17,8 @@
 ## 🛠 기술 스택
 - **Language**: Python 3.9+
 - **Frontend**: Streamlit
-- **API**: Naver Search API (Local)
+- **API**: Naver Search API (Local) + Kakao Local API
+- **Database**: SQLite (캐싱)
 - **Deployment**: [Streamlit Community Cloud](docs/DEPLOYMENT.md)
 
 ## 📂 프로젝트 구조
@@ -48,13 +49,22 @@ pip install -r requirements.txt
 ```
 
 ### 2. API 키 설정
-네이버 검색 API 키가 필요합니다. [네이버 개발자 센터](https://developers.naver.com/)에서 발급받으세요. (`docs/Naver_API_Guide.md` 참조)
+**네이버 검색 API** (필수) 및 **카카오 로컬 API** (권장)가 필요합니다.
+
+- **네이버**: [네이버 개발자 센터](https://developers.naver.com/) (`docs/Naver_API_Guide.md` 참조)
+- **카카오**: [카카오 개발자](https://developers.kakao.com/) → 내 애플리케이션 → REST API 키
 
 `.env` 파일을 생성하고 키를 입력합니다:
 ```bash
-NAVER_CLIENT_ID=your_id
-NAVER_CLIENT_SECRET=your_secret
+# 네이버 (필수)
+NAVER_CLIENT_ID=your_naver_client_id
+NAVER_CLIENT_SECRET=your_naver_client_secret
+
+# 카카오 (선택, 하지만 권장 - 더 많은 식당 데이터)
+KAKAO_REST_API_KEY=your_kakao_rest_api_key
 ```
+
+💡 **Tip**: 두 API를 모두 사용하면 **2-3배 더 많은 식당** 데이터를 수집합니다!
 
 ### 3. 앱 실행
 ```bash
