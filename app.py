@@ -47,6 +47,24 @@ def main():
     st.title("🍱 오늘 점심, 뭐 먹지?")
     st.caption("주변 맛집 데이터를 분석해 **실제 먹을 수 있는 메뉴**만 추천해 드려요.")
 
+    # Initialize session state for data persistence (RESTORED)
+    if 'processed_results' not in st.session_state:
+        st.session_state.processed_results = []
+    if 'top_menus' not in st.session_state:
+        st.session_state.top_menus = []
+    if 'last_query' not in st.session_state:
+        st.session_state.last_query = ""
+    if 'last_mode' not in st.session_state: # Track mode changes
+        st.session_state.last_mode = ""
+
+    # Initialize AI mode session state
+    if 'ai_recommendations' not in st.session_state:
+        st.session_state.ai_recommendations = None
+    if 'ai_context' not in st.session_state:
+        st.session_state.ai_context = ""
+    if 'last_ai_mode' not in st.session_state:
+        st.session_state.last_ai_mode = False
+
     # Sidebar
     with st.sidebar:
         st.header("📍 내 위치 설정")
@@ -91,9 +109,7 @@ def main():
         if location != st.session_state.current_location:
             st.session_state.current_location = location
         
-        st.header("⚙️ 옵션")
 
-        st.header("⚙️ 옵션")
         
     # Layout: Top Level Tabs
     tab_fast, tab_ai = st.tabs(["⚡️ 빠른 추천", "🤖 AI 미식가"])
