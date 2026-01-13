@@ -316,7 +316,6 @@ def main():
 
                 try:
                     # Sample 10 restaurants for analysis
-                    import random
                     sample_restaurants = random.sample(
                         st.session_state.processed_results,
                         min(10, len(st.session_state.processed_results))
