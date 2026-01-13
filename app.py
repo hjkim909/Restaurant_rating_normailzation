@@ -109,10 +109,118 @@ def main():
         if location != st.session_state.current_location:
             st.session_state.current_location = location
         
-
+        st.header("⚙️ 옵션")
+        category_options = st.multiselect(
+            "선호 카테고리 (선택 시 해당 메뉴 우선)",
+            ["한식", "중식", "일식", "양식", "아시아음식", "분식", "육류", "치킨"],
+            default=[]
+        )
         
+        use_hidden_gem = st.checkbox("💎 숨은 맛집 찾기 (리뷰 적은 곳 포함)", value=False)
     # Layout: Top Level Tabs
     tab_fast, tab_ai = st.tabs(["⚡️ 빠른 추천", "🤖 AI 미식가"])
+
+    # --------------------------------------------------------------------------------
+    # MAIN LOGIC (Fetch Data & Process) - Must run BEFORE Tabs render
+    # --------------------------------------------------------------------------------
+    
+    # 1. Prepare Query and Mode
+    query = f"{location} 맛집"
+    if category_options:
+        query = f"{location} {' '.join(category_options)} 맛집"
+        
+    current_mode = 'random' if use_hidden_gem else 'popular'
+    
+    # Check if we need to fetch new data
+    need_refresh = False
+    if st.button("🔄 데이터 다시 불러오기", type="secondary"):
+        st.cache_data.clear()
+        need_refresh = True
+        
+    if (query != st.session_state.last_query) or (current_mode != st.session_state.last_mode) or need_refresh or not st.session_state.processed_results:
+        st.session_state.last_query = query
+        st.session_state.last_mode = current_mode
+        st.session_state.last_mode = current_mode # (Duplicate assignment removal opportunity, but keeping for safety in insertion)
+        st.session_state.fast_selected_menu = None 
+        st.session_state.ai_selected_restaurants = None
+
+        # Initialize both APIs
+        naver_api = NaverPlaceAPI(CLIENT_ID, CLIENT_SECRET) if CLIENT_ID and CLIENT_SECRET else None
+        kakao_api = KakaoPlaceAPI(KAKAO_REST_API_KEY) if KAKAO_REST_API_KEY else None
+
+        with st.spinner(f"📡 {location} 주변 식당 스캔 중... (네이버 + 카카오)"):
+            all_items = []
+
+            # Fetch from Naver
+            if naver_api and "your_client_id" not in CLIENT_ID:
+                try:
+                    naver_data = naver_api.search_places(query, display=50, search_mode=current_mode, force_refresh=need_refresh)
+                    naver_items = naver_data['items'] if naver_data else []
+                    all_items.extend(naver_items)
+                    print(f"✅ Naver: {len(naver_items)} restaurants")
+                except Exception as e:
+                     # Only warn if explicitly debugging, otherwise silent to user
+                    print(f"Naver API Error: {str(e)}")
+
+            # Fetch from Kakao
+            if kakao_api:
+                try:
+                    kakao_data = kakao_api.search_places(query, size=15, search_mode=current_mode, force_refresh=need_refresh)
+                    kakao_items = kakao_data['items'] if kakao_data else []
+                    all_items.extend(kakao_items)
+                    print(f"✅ Kakao: {len(kakao_items)} restaurants")
+                except Exception as e:
+                    print(f"Kakao API Error: {str(e)}")
+
+            # Fallback to mock data if both APIs fail and no items found
+            if not all_items:
+                if not CLIENT_ID and not KAKAO_REST_API_KEY:
+                    st.warning("데모 모드: API 키 설정을 확인해주세요.")
+                all_items = MOCK_DATA
+
+            # Deduplicate across both APIs
+            items = all_items  
+            
+            processor = DataProcessor()
+            processed_temp = processor.process_places(items)
+            
+            # 🟢 SMART RADIUS FILTERING
+            if use_geo and location_coords and location == st.session_state.current_location:
+                 from backend.geo_utils import calculate_distance
+                 user_lat, user_lng = location_coords
+                 
+                 radii = [500, 1000, 2000]
+                 found_radius = None
+                 filtered_items = []
+                 
+                 for r in radii:
+                     temp_items = []
+                     for item in processed_temp:
+                         dist = calculate_distance(user_lat, user_lng, item.get('mapx'), item.get('mapy'))
+                         if dist <= r:
+                             temp_items.append(item)
+                     
+                     if temp_items:
+                         filtered_items = temp_items
+                         found_radius = r
+                         break
+                 
+                 if filtered_items:
+                     # Optional: feedback logic if needed
+                     processed_temp = filtered_items
+                 # else: keep all (fallback)
+            
+            st.session_state.processed_results = processed_temp
+            
+            # 2. Extract Menus
+            recommender = MenuRecommender()
+            current_prefs = UserPreferences()
+            st.session_state.top_menus = recommender.extract_top_menus(
+                st.session_state.processed_results,
+                top_n=15,
+                dislikes=current_prefs.get_dislikes(),
+                favorites=current_prefs.get_favorites()
+            )
 
     # ---------------------------------------------------------
     # TAB 1: FAST MODE (Original Functionality)
