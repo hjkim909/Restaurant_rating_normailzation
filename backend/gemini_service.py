@@ -19,10 +19,12 @@ from typing import List, Dict, Generator, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
-    import google.generativeai as genai
+    import google.genai as genai
+    from google.genai import types
 except ImportError:
     genai = None
-    logging.warning("google-generativeai not installed. AI mode will not work.")
+    types = None
+    logging.warning("google-genai not installed. AI mode will not work.")
 
 from backend.db_manager import DatabaseManager
 
@@ -43,14 +45,15 @@ class GeminiRecommendationService:
             api_key: Google Gemini API key
         """
         if genai is None:
-            raise ImportError("google-generativeai package not installed. Run: pip install google-generativeai")
+            raise ImportError("google-genai package not installed. Run: pip install google-genai")
 
-        genai.configure(api_key=api_key)
+        # Initialize client with API key
+        self.client = genai.Client(api_key=api_key)
+        self.model_name = 'gemini-1.5-flash'
 
-        # Use Flash for speed (meets 10-30s target)
-        self.model = genai.GenerativeModel(
-            'gemini-1.5-flash',
-            tools='google_search_retrieval'  # Enable Google Search grounding
+        # Configure Google Search tool
+        self.search_tool = types.Tool(
+            google_search_retrieval=types.GoogleSearchRetrieval()
         )
 
         self.db = DatabaseManager()
@@ -243,7 +246,14 @@ JSON 형식으로 응답해주세요:
 
         try:
             # Call Gemini with Google Search grounding
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    tools=[self.search_tool],
+                    temperature=0.7
+                )
+            )
 
             # Parse response
             response_text = response.text
@@ -395,7 +405,13 @@ JSON 형식으로 응답해주세요:
 """
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.9
+                )
+            )
             return response.text.strip()
         except Exception as e:
             self.logger.error(f"Error generating conversational response: {str(e)}")

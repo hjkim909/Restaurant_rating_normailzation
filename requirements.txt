@@ -8,5 +8,5 @@ pyproj
 geopy
 streamlit-js-eval
 pyproj
-google-generativeai>=0.3.0
+google-genai>=1.47.0
 # konlpy # Optional for Phase 2
