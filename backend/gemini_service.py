@@ -49,11 +49,11 @@ class GeminiRecommendationService:
 
         # Initialize client with API key
         self.client = genai.Client(api_key=api_key)
-        self.model_name = 'gemini-1.5-flash'
+        self.model_name = 'gemini-flash-latest'  # Use latest stable flash model
 
         # Configure Google Search tool
         self.search_tool = types.Tool(
-            google_search_retrieval=types.GoogleSearchRetrieval()
+            google_search=types.GoogleSearch()
         )
 
         self.db = DatabaseManager()
