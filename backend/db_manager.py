@@ -57,6 +57,29 @@ class DatabaseManager:
             """, (query_key, json_str, time.time()))
             conn.commit()
 
+    def get_ai_cache(self, query_key, expiry_seconds=21600):
+        """
+        Get AI recommendation cache with shorter expiry (default: 6 hours).
+
+        Args:
+            query_key: Cache key for AI recommendations
+            expiry_seconds: Cache expiry in seconds (default: 21600 = 6 hours)
+
+        Returns:
+            Cached data dictionary or None if expired/not found
+        """
+        return self.get_cache(f"ai_{query_key}", expiry_seconds)
+
+    def save_ai_cache(self, query_key, data):
+        """
+        Save AI recommendation cache with ai_ prefix.
+
+        Args:
+            query_key: Cache key for AI recommendations
+            data: Data to cache
+        """
+        self.save_cache(f"ai_{query_key}", data)
+
     def migrate_from_json(self, json_path):
         """One-time migration helper."""
         if not os.path.exists(json_path):

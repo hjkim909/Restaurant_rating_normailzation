@@ -39,7 +39,50 @@ pip install -r requirements.txt
 # Environment variables required in .env
 NAVER_CLIENT_ID=your_id
 NAVER_CLIENT_SECRET=your_secret
+GEMINI_API_KEY=your_gemini_key  # For AI Mode
 ```
+
+## AI Mode
+
+### Overview
+- **Purpose**: Gemini AI analyzes Naver Place reviews to provide personalized, context-aware menu recommendations
+- **Model**: Gemini 1.5 Flash with Google Search grounding (automatically fetches and analyzes reviews)
+- **Performance**: 10-30 second response time for 10 restaurant analysis
+- **Cost**: Free tier (60 RPM, 1.5M requests/day)
+
+### Key Features
+1. **Conversational Context**: Users can describe their situation ("오늘 속이 안 좋아") for personalized recommendations
+2. **Review-Based Reasoning**: AI provides specific reasoning based on actual Naver Place reviews
+3. **Confidence Scoring**: Each recommendation includes confidence percentage based on sentiment analysis
+4. **Smart Fallback**: If AI fails, users can switch to Fast Mode instantly
+
+### Setup
+```bash
+# Get API key from Google AI Studio
+# https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+Add to `.env` file in project root.
+
+### Usage
+1. Toggle "🤖 AI 추천 모드" in sidebar
+2. (Optional) Enter context in text field: "오늘 속이 안 좋아", "가볍게 먹고 싶어", etc.
+3. Wait 10-30s for AI analysis (progress bar shows status)
+4. Review top 5 recommendations with reasoning and review summaries
+5. Click "식당 보기" button to filter restaurants by selected menu
+
+### Architecture
+- **File**: `backend/gemini_service.py` - Core AI service
+- **Integration**: `app.py` lines 288-336 (AI processing flow), 351-392 (AI display)
+- **Caching**: 6-hour expiry in `restaurant.db` (prefix: `ai_`)
+- **Parallel Processing**: ThreadPoolExecutor with 5 workers for 10 restaurants
+
+### Technical Details
+- **Review Access**: Gemini's Google Search tool automatically searches "네이버 플레이스 [식당명] [주소] 리뷰"
+- **No Web Scraping**: Search grounding handles all review fetching
+- **JSON Parsing**: Handles markdown code blocks in Gemini responses
+- **Error Handling**: Graceful fallback to Fast Mode on failure
 
 ## Architecture
 

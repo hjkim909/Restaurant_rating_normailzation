@@ -91,10 +91,39 @@ def main():
             st.session_state.current_location = location
         
         st.header("⚙️ 옵션")
-        # Hidden Gem Toggle
-        use_hidden_gem = st.toggle("💎 숨은 맛집 찾기 (랜덤/다양성)", 
-                                   help="활성화하면 리뷰순이 아닌 랜덤순으로 다양한 식당을 가져옵니다.")
-                                   
+
+        # Mode Toggles (Fast vs AI)
+        col_mode1, col_mode2 = st.columns(2)
+        with col_mode1:
+            use_hidden_gem = st.toggle("💎 숨은 맛집 찾기",
+                                       help="활성화하면 리뷰순이 아닌 랜덤순으로 다양한 식당을 가져옵니다.")
+
+        with col_mode2:
+            use_ai_mode = st.toggle(
+                "🤖 AI 추천 모드",
+                help="Gemini AI가 리뷰를 분석해서 맞춤 추천을 제공합니다 (10-30초 소요)"
+            )
+
+        # Validation: Show warning if AI mode enabled without API key
+        if use_ai_mode and not os.getenv("GEMINI_API_KEY"):
+            st.warning("⚠️ AI 모드를 사용하려면 .env 파일에 GEMINI_API_KEY를 설정해주세요.")
+            use_ai_mode = False
+
+        # AI Context Input (only show if AI mode enabled)
+        if use_ai_mode:
+            st.markdown("---")
+            st.markdown("#### 🗣️ AI에게 상황 설명하기 (선택)")
+            ai_context = st.text_input(
+                "예: '오늘 속이 안 좋아', '가볍게 먹고 싶어', '매운 거 땡겨'",
+                value=st.session_state.get('ai_context', ''),
+                placeholder="원하는 메뉴나 상황을 자유롭게 입력하세요",
+                key="ai_context_input"
+            )
+            if ai_context != st.session_state.get('ai_context', ''):
+                st.session_state.ai_context = ai_context
+                st.session_state.ai_recommendations = None  # Reset on context change
+            st.markdown("---")
+
         category_options = st.multiselect(
             "선호 종류 (선택 안 하면 전체)", 
             ["한식", "양식", "중식", "일식", "분식", "아시아"],
@@ -144,6 +173,14 @@ def main():
         st.session_state.last_query = ""
     if 'last_mode' not in st.session_state: # Track mode changes
         st.session_state.last_mode = ""
+
+    # Initialize AI mode session state
+    if 'ai_recommendations' not in st.session_state:
+        st.session_state.ai_recommendations = None
+    if 'ai_context' not in st.session_state:
+        st.session_state.ai_context = ""
+    if 'last_ai_mode' not in st.session_state:
+        st.session_state.last_ai_mode = False
 
     # Clear cache only if requested explicitly or implicitly by changing options
     need_refresh = False
@@ -242,13 +279,63 @@ def main():
             # Load fresh prefs
             current_prefs = UserPreferences()
             st.session_state.top_menus = recommender.extract_top_menus(
-                st.session_state.processed_results, 
-                top_n=15, 
+                st.session_state.processed_results,
+                top_n=15,
                 dislikes=current_prefs.get_dislikes(),
                 favorites=current_prefs.get_favorites()
             )
 
-    
+    # AI Mode Processing
+    if use_ai_mode and (
+        st.session_state.ai_recommendations is None
+        or st.session_state.last_ai_mode != use_ai_mode
+    ):
+        st.session_state.last_ai_mode = use_ai_mode
+
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if gemini_api_key and st.session_state.processed_results:
+            from backend.gemini_service import GeminiRecommendationService
+
+            gemini_service = GeminiRecommendationService(gemini_api_key)
+
+            with st.spinner("🤖 AI가 리뷰를 분석하고 있습니다... (10-30초 소요)"):
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+
+                try:
+                    # Sample 10 restaurants for analysis
+                    import random
+                    sample_restaurants = random.sample(
+                        st.session_state.processed_results,
+                        min(10, len(st.session_state.processed_results))
+                    )
+
+                    status_text.text(f"📊 {len(sample_restaurants)}개 식당의 리뷰를 분석 중...")
+                    progress_bar.progress(30)
+
+                    # Get AI recommendations
+                    ai_result = gemini_service.analyze_restaurants_for_menu(
+                        restaurants=sample_restaurants,
+                        user_context=st.session_state.ai_context if st.session_state.ai_context else None,
+                        max_restaurants=10
+                    )
+
+                    progress_bar.progress(90)
+                    status_text.text("✅ 분석 완료!")
+                    time.sleep(0.5)
+
+                    st.session_state.ai_recommendations = ai_result
+
+                    progress_bar.empty()
+                    status_text.empty()
+
+                except Exception as e:
+                    st.error(f"AI 분석 중 오류가 발생했습니다: {str(e)[:200]}")
+                    st.info("Fast Mode로 전환하여 기본 추천을 확인해보세요.")
+                    progress_bar.empty()
+                    status_text.empty()
+
+
     # Use cached data
     processed_results = st.session_state.processed_results
     
@@ -261,41 +348,82 @@ def main():
     if 'selected_menu' not in st.session_state:
         st.session_state.selected_menu = None
 
-    # Layout: Top Section (Random & Chips)
-    col_rand, col_chips = st.columns([1, 2])
-    
-    with col_rand:
-        st.markdown("### 🎲 못 고르겠다면?")
-        if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
-            if st.session_state.top_menus:
-                # Re-apply preference weight for random pick slightly? 
-                # Already done in extraction, but let's just pick one.
-                st.session_state.selected_menu = random.choice(st.session_state.top_menus)
-            else:
-                st.error("추천할 메뉴 데이터가 부족해요.")
+    # Layout: Top Section - AI Mode or Fast Mode Display
+    if use_ai_mode and st.session_state.ai_recommendations:
+        # AI MODE DISPLAY
+        st.markdown("### 🤖 AI 맞춤 추천")
 
-    with col_chips:
-        st.markdown(f"### 🔥 {location} 인기 메뉴")
-        # Display chips nicely
-        if st.session_state.top_menus:
-            # CSS hack for horizontal scroll or nice wrapping chips
-            st.markdown("""
-            <style>
-            .stButton button {border-radius: 20px;}
-            </style>
-            """, unsafe_allow_html=True)
-            
-            # Simple flow layout using columns is hard, let's use a specialized row approach or just simple buttons
-            # Grouping buttons in rows of 5
-            menus_to_show = st.session_state.top_menus
-            rows = [menus_to_show[i:i + 5] for i in range(0, len(menus_to_show), 5)]
-            for row in rows:
-                cols = st.columns(len(row))
-                for i, menu in enumerate(row):
-                    if cols[i].button(f"#{menu}", key=f"btn_{menu}", type="primary" if st.session_state.selected_menu == menu else "secondary"):
-                        st.session_state.selected_menu = menu
+        ai_result = st.session_state.ai_recommendations
+
+        # Show conversational response if available
+        if ai_result.get('conversational_response'):
+            st.info(f"💬 {ai_result['conversational_response']}")
+
+        # Show top recommendations
+        recommendations = ai_result.get('recommendations', [])
+        if recommendations:
+            for idx, rec in enumerate(recommendations[:5]):
+                with st.expander(
+                    f"**{idx+1}. {rec['menu']}** (신뢰도: {rec['confidence']*100:.0f}%)",
+                    expanded=(idx == 0)
+                ):
+                    st.markdown(f"**📝 추천 이유:**\n{rec['reasoning']}")
+
+                    if rec.get('review_summary'):
+                        st.markdown(f"**🗣️ 리뷰 요약:**\n{rec['review_summary']}")
+
+                    # Button to select this menu
+                    if st.button(
+                        f"'{rec['menu']}' 식당 보기",
+                        key=f"ai_select_{idx}",
+                        type="primary"
+                    ):
+                        st.session_state.selected_menu = rec['menu']
+                        st.rerun()
+
+            # Show metadata
+            with st.expander("🔍 분석 상세 정보"):
+                metadata = ai_result.get('metadata', {})
+                st.caption(f"처리 시간: {metadata.get('processing_time', 0):.1f}초")
+                st.caption(f"분석한 식당 수: {metadata.get('analyzed_count', 0)}개")
+                if metadata.get('search_queries'):
+                    st.caption(f"검색 쿼리: {len(metadata['search_queries'])}개 실행")
         else:
-            st.info("메뉴를 추출하는 중입니다...")
+            st.warning("AI 추천 결과가 없습니다. Fast Mode로 전환해보세요.")
+
+    else:
+        # FAST MODE DISPLAY (Original code)
+        col_rand, col_chips = st.columns([1, 2])
+
+        with col_rand:
+            st.markdown("### 🎲 못 고르겠다면?")
+            if st.button("랜덤 메뉴 뽑기!", type="primary", use_container_width=True):
+                if st.session_state.top_menus:
+                    st.session_state.selected_menu = random.choice(st.session_state.top_menus)
+                else:
+                    st.error("추천할 메뉴 데이터가 부족해요.")
+
+        with col_chips:
+            st.markdown(f"### 🔥 {location} 인기 메뉴")
+            # Display chips nicely
+            if st.session_state.top_menus:
+                # CSS hack for horizontal scroll or nice wrapping chips
+                st.markdown("""
+                <style>
+                .stButton button {border-radius: 20px;}
+                </style>
+                """, unsafe_allow_html=True)
+
+                # Grouping buttons in rows of 5
+                menus_to_show = st.session_state.top_menus
+                rows = [menus_to_show[i:i + 5] for i in range(0, len(menus_to_show), 5)]
+                for row in rows:
+                    cols = st.columns(len(row))
+                    for i, menu in enumerate(row):
+                        if cols[i].button(f"#{menu}", key=f"btn_{menu}", type="primary" if st.session_state.selected_menu == menu else "secondary"):
+                            st.session_state.selected_menu = menu
+            else:
+                st.info("메뉴를 추출하는 중입니다...")
 
     st.divider()
 
