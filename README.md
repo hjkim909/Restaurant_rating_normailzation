@@ -28,12 +28,27 @@
 ## 📂 프로젝트 구조
 ```bash
 .
-├── app.py # 메인 애플리케이션 (Streamlit)
-├── backend/ # 핵심 로직 (API, 데이터 처리)
+├── app.py # Legacy Main App (Streamlit)
+├── backend/ # Legacy Backend Logic
+├── fastapi_app/ # [NEW] Serverless Backend (FastAPI + Lambda)
+│   ├── main.py
+│   ├── routers/
+│   └── services/
 ├── docs/ # 문서 (기획서, 배포 가이드 등)
-├── scripts/ # 테스트 및 유틸리티 스크립트
-└── requirements.txt # 의존성 패키지
+└── requirements.txt
 ```
+
+## 🏗️ 아키텍처 (Migration in Progress)
+Currently migrating from Monolithic Streamlit to Serverless Architecture.
+
+### Backend (Phase 1 Complete ✅)
+- **Stack**: FastAPI, AWS Lambda (via Mangum)
+- **Data Source**: Naver Search API (Parallel Fetching + Subdivision Strategy)
+- **Path**: `/fastapi_app`
+
+### Frontend (Phase 2 In Progress 🚧)
+- **Stack**: React, Tailwind CSS
+
 
 ## 🚀 시작하기
 
@@ -74,6 +89,25 @@ KAKAO_REST_API_KEY=your_kakao_rest_api_key
 ```bash
 streamlit run app.py
 ```
+
+## 📚 문서 가이드 (Documentation)
+
+이 프로젝트의 문서는 목적에 따라 다음과 같이 구분되어 있습니다. 궁금한 내용이 있다면 해당 문서를 참고하세요.
+
+### 🗺 프로젝트 개요 (General)
+- **[PRD.md](docs/PRD.md)**: 기획서입니다. 프로젝트의 목표, 해결하려는 문제, 핵심 기능 정의가 담겨 있습니다.
+- **[CLAUDE.md](CLAUDE.md)**: AI(Claude)를 위한 가이드지만, 프로젝트의 전체 아키텍처와 기술적 맥락을 이해하는 데 가장 유용합니다.
+
+### 👩‍💻 개발 가이드 (For Developers)
+- **[AGENTS.md](docs/AGENTS.md)**: 개발 에이전트들의 역할 정의(Architect, Designer 등)와 협업 프로세스입니다.
+- **[CODE_REVIEW.md](docs/CODE_REVIEW.md)**: 자동화된 코드 리뷰 툴 사용법과 규칙입니다.
+- **[AI_MODE_IMPLEMENTATION.md](docs/AI_MODE_IMPLEMENTATION.md)**: AI 추천 모드 구현 내역과 작업 로그입니다.
+
+### ⚙️ 설치 및 배포 (Setup & Deploy)
+- **[Naver_API_Guide.md](docs/Naver_API_Guide.md)**: 네이버 검색 API 발급 및 키 설정 방법입니다. 필수 과정입니다.
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)**: Streamlit Cloud를 통해 이 앱을 무료로 배포하는 방법을 설명합니다.
+
+
 
 ## 📝 라이선스
 MIT License
