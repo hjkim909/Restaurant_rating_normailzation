@@ -10,3 +10,4 @@ streamlit-js-eval
 pyproj
 google-genai>=1.47.0
 # konlpy # Optional for Phase 2
+google-genai

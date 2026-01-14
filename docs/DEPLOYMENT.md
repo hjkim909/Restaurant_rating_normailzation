@@ -1,44 +1,57 @@
-# 🚀 배포 가이드 (Streamlit Community Cloud)
+# 배포 가이드
 
-이 프로젝트를 인터넷에서 다른 사람들도 볼 수 있게 배포하는 가장 쉬운 방법은 **Streamlit Community Cloud**를 사용하는 것입니다. 무료이고, GitHub와 연동되어 매우 편리합니다.
+## 사전 요구사항
+1.  **AWS CLI**: 설치 및 설정 완료 (`aws configure`).
+2.  **Node.js & NPM**: 설치 완료.
+3.  **Serverless Framework**: 설치 완료 (아래 참조).
 
-## 1. 사전 준비 (필수)
-- GitHub에 프로젝트가 업로드되어 있어야 합니다. (이미 완료하셨습니다! 👍)
-- `requirements.txt` 파일이 있어야 합니다. (이미 있습니다!)
+## 0. AWS 개념 잡기 (초보자 가이드)
 
-## 2. Streamlit Cloud에 가입
-1. [share.streamlit.io](https://share.streamlit.io/) 에 접속합니다.
-2. **"Continue with GitHub"** 버튼을 눌러 GitHub 계정으로 로그인합니다.
+배포를 위해 **AWS 계정**이 반드시 필요합니다. (신규 가입 시 1년간 프리 티어 무료)
 
-## 3. 앱 배포하기
-1. 로그인 후 우측 상단의 **"New app"** 버튼 클릭.
-2. **"Use existing repo"** 선택.
-3. 설정 입력:
-   - **Repository**: `hjkim909/Restaurant_rating_normailzation` (또는 해당 리포지토리 선택)
-   - **Branch**: `main`
-   - **Main file path**: `app.py`
-4. **"Deploy!"** 버튼 클릭.
+*   **AWS Lambda (서버)**: 
+    *   **역할**: 요리사 👨‍🍳
+    *   **설명**: 24시간 켜져 있는 서버가 아니라, 요청이 들어올 때만 실행되는 '함수'입니다. 비용이 매우 저렴합니다. FastAPI 백엔드 코드가 여기서 실행됩니다.
+*   **Amazon S3 (스토리지)**:
+    *   **역할**: 접시/메뉴판 🍽️
+    *   **설명**: HTML, CSS, JS 같은 프론트엔드 파일들을 저장하는 창고입니다.
+*   **이 두 가지를 사용하기 위해 '자격 증명(열쇠)'이 필요합니다.**
 
-## 4. API 키 설정 (중요 🔑)
-앱이 실행되려면 네이버 API 키가 필요합니다. 로컬에서는 `.env` 파일에 있었지만, 클라우드에서는 **Secrets** 기능으로 넣어줘야 합니다.
+## 1. 백엔드 배포 (AWS Lambda)
 
-1. 배포가 시작되면(또는 완료된 앱 화면에서) 우측 하단 **"Manage app"** (또는 Settings 아이콘) 클릭.
-2. **"Settings"** > **"Secrets"** 탭 클릭.
-3. 아래 내용을 복사해서 붙여넣기 합니다 (본인의 실제 키로 변경하세요!):
+Serverless Framework를 사용하여 FastAPI 앱을 배포합니다.
 
-```toml
-NAVER_CLIENT_ID = "여러분의_Client_ID"
-NAVER_CLIENT_SECRET = "여러분의_Client_Secret"
-```
+1.  **플러그인 및 도구 설치**:
+    ```bash
+    npm install -D serverless serverless-python-requirements
+    ```
 
-4. **"Save"** 버튼 클릭.
-5. 앱이 자동으로 다시 시작(Reboot)됩니다.
+2.  **배포**:
+    ```bash
+    npx serverless deploy
+    ```
 
-## 5. 완료! 🎉
-이제 상단 주소창의 URL (예: `https://lunch-picker.streamlit.app`)을 친구들에게 공유하면 됩니다.
+3.  **API 엔드포인트 URL 확인**:
+    배포 후 출력되는 엔드포인트 URL을 확인하세요 (예: `https://xyz.execute-api.ap-northeast-2.amazonaws.com/dev`).
+    **이 URL을 복사해두세요.**
 
----
+## 2. 프론트엔드 배포 (AWS S3 + CloudFront)
 
-### 주의사항
-- **Sleep Mode**: 무료 버전은 오랫동안 접속이 없으면 잠자기 모드로 들어갑니다. 접속하면 깨어나는 데 시간이 조금 걸릴 수 있습니다.
-- **Resource Limits**: 메모리 사용량이 너무 많으면 앱이 꺼질 수 있습니다. (현재 앱은 가벼워서 괜찮습니다)
+1.  **API URL 업데이트**:
+    *   `frontend/.env.production` 파일을 생성합니다.
+    *   `VITE_API_BASE_URL`을 위에서 복사한 Lambda 엔드포인트로 설정합니다.
+
+2.  **빌드**:
+    ```bash
+    cd frontend
+    npm run build
+    ```
+
+3.  **S3 배포** (버킷이 생성되어 있다고 가정):
+    ```bash
+    aws s3 sync dist/ s3://YOUR-BUCKET-NAME --acl public-read
+    ```
+
+4.  **CloudFront**:
+    *   CloudFront가 S3 버킷을 가리키도록 설정합니다.
+    *   도메인이 다른 경우 CORS 설정을 확인하세요.

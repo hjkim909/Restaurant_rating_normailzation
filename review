@@ -1,0 +1,5 @@
+#!/bin/bash
+# Quick code review shortcut
+# Usage: ./review [file_path]
+
+python scripts/code_review.py "$@"

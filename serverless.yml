@@ -1,0 +1,34 @@
+service: lunch-menu-finder
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-northeast-2
+  environment:
+    NAVER_CLIENT_ID: ${env:NAVER_CLIENT_ID}
+    NAVER_CLIENT_SECRET: ${env:NAVER_CLIENT_SECRET}
+    GEMINI_API_KEY: ${env:GEMINI_API_KEY}
+    KAKAO_REST_API_KEY: ${env:KAKAO_REST_API_KEY}
+
+functions:
+  api:
+    handler: fastapi_app.main.handler
+    events:
+      - http:
+          path: /
+          method: any
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    layer: true
