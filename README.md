@@ -46,8 +46,9 @@ Currently migrating from Monolithic Streamlit to Serverless Architecture.
 - **Data Source**: Naver Search API (Parallel Fetching + Subdivision Strategy)
 - **Path**: `/fastapi_app`
 
-### Frontend (Phase 2 In Progress 🚧)
-- **Stack**: React, Tailwind CSS
+### Frontend (Phase 2 Complete ✅)
+- **Stack**: React (Vite), Tailwind CSS v4, Lucide React
+- **Path**: `/frontend`
 
 
 ## 🚀 시작하기
