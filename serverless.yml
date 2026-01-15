@@ -28,8 +28,14 @@ functions:
 plugins:
   - serverless-dotenv-plugin
   - serverless-s3-sync
+  - serverless-cloudfront-invalidate
 
 custom:
+  cloudfrontInvalidate:
+    - distributionIdKey: CloudFrontDistributionId
+      items:
+        - "/index.html"
+        - "/assets/*"
   s3Sync:
     - bucketName: lunch-menu-finder-frontend-hjkim909
       localDir: frontend/dist
@@ -100,3 +106,5 @@ resources:
   Outputs:
     CloudFrontURL:
       Value: !GetAtt CloudFrontDistribution.DomainName
+    CloudFrontDistributionId:
+      Value: !Ref CloudFrontDistribution

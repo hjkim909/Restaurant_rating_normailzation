@@ -97,6 +97,15 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
 - **2026-01**: Streamlit -> React/FastAPI 마이그레이션 완료.
 - **이슈**: Lambda `ImportError` (pydantic-core). **해결**: `vendor` 폴더에 `manylinux` 바이너리 수동 설치.
 - **이슈**: 브라우저 Geolocation 차단. **해결**: CloudFront 도입 필요.
+- **2026-01 (Feature)**: 장르 필터, 랜덤 메뉴, 지도(Kakao Map) 통합 완료.
+- **이슈**: 배포 후 구버전이 보이는 **Ghost Cache** 현상.
+    - **원인**: S3에는 최신 빌드가 업로드되지만 CloudFront가 구버전을 캐싱.
+    - **해결**: `serverless-cloudfront-invalidate` 플러그인을 도입하여 배포 시 자동으로 `/index.html`과 `/assets/*`를 무효화하도록 설정.
+    - **상태**: ✅ 해결 완료 (2026-01-15). 이제 `npx serverless deploy` 실행 시 자동으로 캐시 무효화됨.
+- **이슈**: 배포 환경에서 Kakao 지도 로드 실패.
+    - **원인**: CloudFront 도메인(`d295iyxb2t8br9.cloudfront.net`)이 Kakao Developers Console에 등록되지 않음.
+    - **해결**: [Kakao Developers Console](https://developers.kakao.com/) > 앱 선택 > 플랫폼 > Web > 사이트 도메인에 `https://d295iyxb2t8br9.cloudfront.net` 추가.
+    - **상태**: ⏳ 수동 등록 필요 (사용자 직접 설정).
 
 ## 7. 주요 파일 구조
 - `serverless.yml`: AWS 배포 설정 (가장 중요).
