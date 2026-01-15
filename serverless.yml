@@ -64,3 +64,32 @@ resources:
               Principal: '*'
               Action: s3:GetObject
               Resource: arn:aws:s3:::lunch-menu-finder-frontend-hjkim909/*
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: lunch-menu-finder-frontend-hjkim909.s3-website.ap-northeast-2.amazonaws.com
+              Id: FrontendOrigin
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: http-only
+          Enabled: true
+          DefaultRootObject: index.html
+          DefaultCacheBehavior:
+            TargetOriginId: FrontendOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+
+  Outputs:
+    CloudFrontURL:
+      Value: !GetAtt CloudFrontDistribution.DomainName

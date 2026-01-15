@@ -180,7 +180,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lunch-menu-finder/dev/1768475100311-2026-01-15T11:05:00.311Z/lunch-menu-finder.zip"
+                "S3Key": "serverless/lunch-menu-finder/dev/1768475455329-2026-01-15T11:10:55.329Z/lunch-menu-finder.zip"
               },
               "Handler": "fastapi_app.main.handler",
               "Runtime": "python3.10",
@@ -206,14 +206,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersiona0GuKYs4Q5gwIRHplChoveDsgexFhddWXiHB5H5kY": {
+          "ApiLambdaVersionTkcyFSTiFxw4zQQaOEHgYR4uVCUlLhIrkwpVsxQcnF0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "MJ2WrcS+08H8P7YrwRv4oeaZupSYnIZ9KGlIXzLmBbQ="
+              "CodeSha256": "zmXxADW9lT1m4gEfk773JIGwP5+85sNzRSuwnitcpy8="
             }
           },
           "ApiGatewayRestApi": {
@@ -431,7 +431,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1768475092613": {
+          "ApiGatewayDeployment1768475447744": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -517,6 +517,41 @@
                 ]
               }
             }
+          },
+          "CloudFrontDistribution": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+              "DistributionConfig": {
+                "Origins": [
+                  {
+                    "DomainName": "lunch-menu-finder-frontend-hjkim909.s3-website.ap-northeast-2.amazonaws.com",
+                    "Id": "FrontendOrigin",
+                    "CustomOriginConfig": {
+                      "HTTPPort": 80,
+                      "HTTPSPort": 443,
+                      "OriginProtocolPolicy": "http-only"
+                    }
+                  }
+                ],
+                "Enabled": true,
+                "DefaultRootObject": "index.html",
+                "DefaultCacheBehavior": {
+                  "TargetOriginId": "FrontendOrigin",
+                  "ViewerProtocolPolicy": "redirect-to-https",
+                  "AllowedMethods": [
+                    "GET",
+                    "HEAD",
+                    "OPTIONS"
+                  ],
+                  "ForwardedValues": {
+                    "QueryString": false,
+                    "Cookies": {
+                      "Forward": "none"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "Outputs": {
@@ -531,7 +566,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersiona0GuKYs4Q5gwIRHplChoveDsgexFhddWXiHB5H5kY"
+              "Ref": "ApiLambdaVersionTkcyFSTiFxw4zQQaOEHgYR4uVCUlLhIrkwpVsxQcnF0"
             },
             "Export": {
               "Name": "sls-lunch-menu-finder-dev-ApiLambdaFunctionQualifiedArn"
@@ -561,6 +596,14 @@
             },
             "Export": {
               "Name": "sls-lunch-menu-finder-dev-ServiceEndpoint"
+            }
+          },
+          "CloudFrontURL": {
+            "Value": {
+              "Fn::GetAtt": [
+                "CloudFrontDistribution",
+                "DomainName"
+              ]
             }
           }
         }
@@ -728,7 +771,7 @@
         "timeout": 6,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersiona0GuKYs4Q5gwIRHplChoveDsgexFhddWXiHB5H5kY"
+        "versionLogicalId": "ApiLambdaVersionTkcyFSTiFxw4zQQaOEHgYR4uVCUlLhIrkwpVsxQcnF0"
       }
     },
     "resources": {
@@ -767,9 +810,53 @@
               ]
             }
           }
+        },
+        "CloudFrontDistribution": {
+          "Type": "AWS::CloudFront::Distribution",
+          "Properties": {
+            "DistributionConfig": {
+              "Origins": [
+                {
+                  "DomainName": "lunch-menu-finder-frontend-hjkim909.s3-website.ap-northeast-2.amazonaws.com",
+                  "Id": "FrontendOrigin",
+                  "CustomOriginConfig": {
+                    "HTTPPort": 80,
+                    "HTTPSPort": 443,
+                    "OriginProtocolPolicy": "http-only"
+                  }
+                }
+              ],
+              "Enabled": true,
+              "DefaultRootObject": "index.html",
+              "DefaultCacheBehavior": {
+                "TargetOriginId": "FrontendOrigin",
+                "ViewerProtocolPolicy": "redirect-to-https",
+                "AllowedMethods": [
+                  "GET",
+                  "HEAD",
+                  "OPTIONS"
+                ],
+                "ForwardedValues": {
+                  "QueryString": false,
+                  "Cookies": {
+                    "Forward": "none"
+                  }
+                }
+              }
+            }
+          }
         }
       },
-      "Outputs": {}
+      "Outputs": {
+        "CloudFrontURL": {
+          "Value": {
+            "Fn::GetAtt": [
+              "CloudFrontDistribution",
+              "DomainName"
+            ]
+          }
+        }
+      }
     },
     "configValidationMode": "warn",
     "serviceFilename": "serverless.yml",
@@ -797,7 +884,7 @@
     "artifact": "/Users/hyunjoon/SideProjects/Restaurant_rating_normailzation/.serverless/lunch-menu-finder.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/lunch-menu-finder/dev/1768475100311-2026-01-15T11:05:00.311Z",
+    "artifactDirectoryName": "serverless/lunch-menu-finder/dev/1768475455329-2026-01-15T11:10:55.329Z",
     "artifact": "lunch-menu-finder.zip"
   }
 }
