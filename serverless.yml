@@ -4,7 +4,7 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: python3.9
+  runtime: python3.10
   region: ap-northeast-2
   environment:
     NAVER_CLIENT_ID: ${env:NAVER_CLIENT_ID}
@@ -26,9 +26,41 @@ functions:
           cors: true
 
 plugins:
-  - serverless-python-requirements
+  - serverless-dotenv-plugin
+  - serverless-s3-sync
 
 custom:
-  pythonRequirements:
-    dockerizePip: non-linux
-    layer: true
+  s3Sync:
+    - bucketName: lunch-menu-finder-frontend-hjkim909
+      localDir: frontend/dist
+  dotenv:
+    exclude:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+
+resources:
+  Resources:
+    FrontendBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: lunch-menu-finder-frontend-hjkim909
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+    FrontendBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref FrontendBucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: '*'
+              Action: s3:GetObject
+              Resource: arn:aws:s3:::lunch-menu-finder-frontend-hjkim909/*

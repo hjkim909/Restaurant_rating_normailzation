@@ -1,9 +1,14 @@
+import sys
+import os
+
+# Add vendor directory to path for Lambda
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vendor'))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from dotenv import load_dotenv
 from fastapi_app.routers import search, recommend
-import os
 
 load_dotenv()
 
@@ -18,7 +23,7 @@ origins = [
     "http://localhost:3000", # React Local
     "http://localhost:8000", # API Local
     "http://localhost:5173", # Vite Local
-    # Add CloudFront domain later
+    "*" # Allow all for MVP (S3, CloudFront)
 ]
 
 app.add_middleware(

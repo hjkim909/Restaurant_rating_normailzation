@@ -3,6 +3,11 @@ import axios from 'axios'
 import { Search, MapPin, Star, Utensils, Sparkles } from 'lucide-react'
 import AIView from './components/AIView'
 
+// Set API Base URL for production
+if (import.meta.env.VITE_API_BASE_URL) {
+  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('search') // 'search' | 'ai'
   const [query, setQuery] = useState('')

@@ -38,15 +38,30 @@
 └── requirements.txt
 ```
 
-## 🏗️ 아키텍처 (Migration in Progress)
-Currently migrating from Monolithic Streamlit to Serverless Architecture.
+## 🏗️ 아키텍처 (Serverless Migration)
+기존 Streamlit 모놀리식 구조에서 **Serverless MSA (Microservice Architecture)**로 마이그레이션이 진행 중입니다.
 
-### Backend (Phase 1 Complete ✅)
+### 📅 프로젝트 진행 상황
+- [x] **Phase 1: 백엔드 (FastAPI + Lambda)** - 완료 ✅
+    - `NaverPlaceAPI` 및 데이터 로직 이식 완료.
+    - `/api/v1/search`, `/api/v1/recommend` 엔드포인트 구축.
+- [x] **Phase 2: 프론트엔드 (React + Vite)** - 완료 ✅
+    - 모바일 퍼스트 반응형 UI 구현.
+    - 위치 기반(GPS) 검색 및 스마트 반경 필터링 복구.
+- [x] **Phase 3: AI 모드 (Gemini)** - 완료 ✅
+    - Google Gemini 1.5 Flash 연동.
+    - 상황 기반 메뉴 추천 및 대화형 UI 구현.
+- [x] **Phase 4: UI/UX 개선** - 완료 ✅
+    - 사용자 경험 중심의 디자인 리파인먼트.
+- [ ] **Phase 5: 배포 (AWS Serverless)** - 진행 중 🚧
+    - AWS 가입 및 키 발급 대기 중.
+
+### Backend Structure
 - **Stack**: FastAPI, AWS Lambda (via Mangum)
 - **Data Source**: Naver Search API (Parallel Fetching + Subdivision Strategy)
 - **Path**: `/fastapi_app`
 
-### Frontend (Phase 2 Complete ✅)
+### Frontend Structure
 - **Stack**: React (Vite), Tailwind CSS v4, Lucide React
 - **Path**: `/frontend`
 
@@ -106,7 +121,8 @@ streamlit run app.py
 
 ### ⚙️ 설치 및 배포 (Setup & Deploy)
 - **[Naver_API_Guide.md](docs/Naver_API_Guide.md)**: 네이버 검색 API 발급 및 키 설정 방법입니다. 필수 과정입니다.
-- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)**: Streamlit Cloud를 통해 이 앱을 무료로 배포하는 방법을 설명합니다.
+- **[Naver_API_Guide.md](docs/Naver_API_Guide.md)**: 네이버 검색 API 발급 및 키 설정 방법입니다. 필수 과정입니다.
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)**: AWS Serverless (Lambda + S3/CloudFront) 배포 가이드입니다.
 
 
 
