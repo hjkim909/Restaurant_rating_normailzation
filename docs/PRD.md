@@ -90,7 +90,8 @@
 ---
 
 ## 6. 기술 스택
-- **Frontend**: Streamlit (인터랙티브 웹앱)
-- **Backend**: Python (Requests, Pandas, Math)
-- **Database**: Local JSON File (NoSQL-like Cache)
-- **API**: Naver Search API (무료, 별도 심사 없음)
+- **Frontend**: React (Vite, Mobile-First Web App)
+- **Backend**: FastAPI (Serverless, Python 3.10)
+- **Database**: In-Memory + Naver API Real-time
+- **API**: Naver Search API
+- **Infrastructure**: AWS Lambda, API Gateway, S3, CloudFront

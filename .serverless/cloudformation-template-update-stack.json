@@ -162,7 +162,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/lunch-menu-finder/dev/1768475455329-2026-01-15T11:10:55.329Z/lunch-menu-finder.zip"
+          "S3Key": "serverless/lunch-menu-finder/dev/1768484896065-2026-01-15T13:48:16.065Z/lunch-menu-finder.zip"
         },
         "Handler": "fastapi_app.main.handler",
         "Runtime": "python3.10",
@@ -188,14 +188,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersionTkcyFSTiFxw4zQQaOEHgYR4uVCUlLhIrkwpVsxQcnF0": {
+    "ApiLambdaVersion3YTIWObNrM2my5cbt2CA8uIOiGKeR4TASLUm1NOcYw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "zmXxADW9lT1m4gEfk773JIGwP5+85sNzRSuwnitcpy8="
+        "CodeSha256": "Hk7IC3Vv/a4f0P+oLpjYWddli7HxHlLYY0Eg4X7m8MU="
       }
     },
     "ApiGatewayRestApi": {
@@ -413,7 +413,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1768475447744": {
+    "ApiGatewayDeployment1768484890247": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -548,7 +548,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionTkcyFSTiFxw4zQQaOEHgYR4uVCUlLhIrkwpVsxQcnF0"
+        "Ref": "ApiLambdaVersion3YTIWObNrM2my5cbt2CA8uIOiGKeR4TASLUm1NOcYw"
       },
       "Export": {
         "Name": "sls-lunch-menu-finder-dev-ApiLambdaFunctionQualifiedArn"

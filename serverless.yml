@@ -33,6 +33,13 @@ custom:
   s3Sync:
     - bucketName: lunch-menu-finder-frontend-hjkim909
       localDir: frontend/dist
+      params:
+        - index.html:
+            CacheControl: 'no-cache, no-store, must-revalidate'
+        - "*.js":
+            CacheControl: 'public, max-age=31536000'
+        - "*.css":
+            CacheControl: 'public, max-age=31536000'
   dotenv:
     exclude:
       - AWS_ACCESS_KEY_ID
