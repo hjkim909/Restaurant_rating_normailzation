@@ -127,7 +127,17 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
 1.  **NO COMMIT**: `.env`, `.env.production`, `aws_config` 등 자격 증명이 포함된 파일은 절대 커밋하지 마세요.
     - 작업 전 `git status`로 `.env`가 추적되고 있는지 반드시 확인하세요.
     - 실수로 커밋했다면 즉시 해당 커밋을 되돌리고(`git reset`), API Key를 재발급받아야 합니다.
-2.  **키 노출 시 대처**:
+2.  **Pre-commit Hook 활성화** (2026-01-19 추가):
+    - `.git/hooks/pre-commit` 스크립트가 설치되어 있습니다.
+    - 이 훅은 `.env` 파일 및 AWS Access Key 패턴(`AKIA...`)이 커밋에 포함되면 **자동으로 차단**합니다.
+    - 새 클론 시 자동 복사되지 않으므로, 팀원은 수동으로 설치해야 합니다.
+3.  **키 노출 시 대처**:
     - 즉시 AWS IAM에서 해당 키를 `Deactivate` 및 `Delete` 처리합니다.
     - `AWSCompromisedKeyQuarantine` 정책이 붙었는지 확인하고 제거합니다.
-3.  **로그 주의**: 터미널 출력이나 에러 로그에 API Key가 찍히지 않도록 주의하세요 (`grep` 등으로 검사 시 주의).
+4.  **로그 주의**: 터미널 출력이나 에러 로그에 API Key가 찍히지 않도록 주의하세요 (`grep` 등으로 검사 시 주의).
+
+### 보안 사고 이력
+| 날짜 | 내용 | 조치 |
+|-----|-----|-----|
+| 2026-01 (초) | AWS 키 유출로 `AWSCompromisedKeyQuarantine` 적용 | 키 재발급, AI.md에 보안 가이드라인 추가 |
+| 2026-01-19 | 배포 중 키 차단 재발생 | 키 재발급, **pre-commit hook 설치** |
