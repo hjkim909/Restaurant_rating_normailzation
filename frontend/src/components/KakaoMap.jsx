@@ -49,7 +49,15 @@ export default function KakaoMap({ center, items, className, userLocation }) {
                         clickable={true}
                     >
                         {selectedMarker === item && (
-                            <div style={{ padding: "5px", color: "#000" }}>{item.title.replace(/<[^>]*>?/gm, '')}</div>
+                            <a
+                                href={item.link || `https://map.naver.com/v5/search/${encodeURIComponent(item.title.replace(/<[^>]*>?/gm, ''))}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                style={{ padding: "8px 12px", color: "#ea580c", fontWeight: "bold", display: "block", textDecoration: "underline" }}
+                            >
+                                {item.title.replace(/<[^>]*>?/gm, '')} →
+                            </a>
                         )}
                     </MapMarker>
                 ) : null

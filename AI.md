@@ -103,9 +103,17 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
     - **해결**: `serverless-cloudfront-invalidate` 플러그인을 도입하여 배포 시 자동으로 `/index.html`과 `/assets/*`를 무효화하도록 설정.
     - **상태**: ✅ 해결 완료 (2026-01-15). 이제 `npx serverless deploy` 실행 시 자동으로 캐시 무효화됨.
 - **이슈**: 배포 환경에서 Kakao 지도 로드 실패.
-    - **원인**: CloudFront 도메인(`d295iyxb2t8br9.cloudfront.net`)이 Kakao Developers Console에 등록되지 않음.
-    - **해결**: [Kakao Developers Console](https://developers.kakao.com/) > 앱 선택 > 플랫폼 > Web > 사이트 도메인에 `https://d295iyxb2t8br9.cloudfront.net` 추가.
-    - **상태**: ⏳ 수동 등록 필요 (사용자 직접 설정).
+    - **원인**: CloudFront 도메인이 Kakao Developers Console에 등록되지 않음.
+    - **해결**: 사이트 도메인에 CloudFront URL 추가 완료.
+    - **상태**: ✅ 완료.
+- **2026-01 (Workflow)**: 신규 기능 구현 및 배포를 위한 `/add-feature` 워크플로우를 정의함.
+    - 브라우저 테스트 및 배포 절차 표준화.
+    - 상태: ✅ 완료.
+- **2026-01 (UI)**: 랜덤 메뉴 모달 UX 개선.
+    - "다시 뽑기" 버튼 스타일 개선 (아이콘 + 배경색).
+    - 식당 제목 클릭 시 네이버 지도 검색 페이지로 이동.
+    - 지도 마커 인포윈도우 클릭 시 외부 지도 링크로 이동.
+    - 상태: ✅ 완료.
 
 ## 7. 주요 파일 구조
 - `serverless.yml`: AWS 배포 설정 (가장 중요).

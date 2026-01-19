@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, Ticket } from 'lucide-react';
+import { Loader2, Ticket, RefreshCw } from 'lucide-react';
 import KakaoMap from './KakaoMap';
 
 export default function RandomPicker({ items, userLocation }) {
@@ -50,7 +50,13 @@ export default function RandomPicker({ items, userLocation }) {
                     ) : (
                         <div className="space-y-4">
                             <div className="text-sm text-orange-500 font-semibold uppercase tracking-wide">오늘의 추천!</div>
-                            <h3 className="text-2xl font-bold text-gray-900" dangerouslySetInnerHTML={{ __html: selectedItem.title }} />
+                            <a
+                                href={selectedItem.link || `https://map.naver.com/v5/search/${encodeURIComponent(selectedItem.title.replace(/<[^>]*>?/gm, ''))}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-2xl font-bold text-gray-900 hover:text-orange-600 underline underline-offset-2 decoration-orange-300 transition-colors cursor-pointer"
+                                dangerouslySetInnerHTML={{ __html: selectedItem.title }}
+                            />
                             <p className="text-gray-600 mb-4">{selectedItem.category}</p>
 
                             {/* Small Map View for Selected Item */}
@@ -68,8 +74,9 @@ export default function RandomPicker({ items, userLocation }) {
                             <div className="flex gap-2 justify-center mt-4 pt-4 border-t border-gray-100">
                                 <button
                                     onClick={() => setSelectedItem(null)}
-                                    className="px-4 py-2 text-gray-500 hover:bg-gray-50 rounded-lg text-sm font-medium"
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold flex items-center gap-1.5 transition-colors"
                                 >
+                                    <RefreshCw className="w-4 h-4" />
                                     다시 뽑기
                                 </button>
                                 {selectedItem.link && (
