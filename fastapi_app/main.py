@@ -13,23 +13,18 @@ from fastapi_app.routers import search, recommend
 load_dotenv()
 
 app = FastAPI(
-    title="Restaurant Menu Finder API",
+    title="Mechu API",
     description="API for finding lunch menus based on Naver Search results",
     version="1.0.0"
 )
 
 # CORS Configuration
-origins = [
-    "http://localhost:3000", # React Local
-    "http://localhost:8000", # API Local
-    "http://localhost:5173", # Vite Local
-    "*" # Allow all for MVP (S3, CloudFront)
-]
-
+# Note: allow_credentials=True와 origins=["*"]는 동시에 사용 불가
+# 프로덕션에서는 credentials가 필요없으므로 False로 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
