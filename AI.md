@@ -1,9 +1,9 @@
-# 🤖 AI Reference: 점심 메뉴 추천 서비스 (Lunch Menu Finder)
+# 🤖 AI Reference: Mechu (Lunch Menu Finder)
 
 이 문서는 AI 에이전트(Claude, Gemini 등)가 이 프로젝트를 이해하고 작업을 이어받을 때 참고해야 할 **Single Source of Truth**입니다.
 
 ## 1. 프로젝트 개요 (Project Overview)
-- **서비스명**: "오늘 뭐 먹지?" (Lunch Menu Picker)
+- **서비스명**: "Mechu" (구: 오늘 뭐 먹지?)
 - **목표**: 결정 장애를 겪는 직장인을 위해 현재 위치 기반으로 '실제 먹을 수 있는' 점심 메뉴를 추천합니다.
 - **핵심 철학**: Restaurant-First가 아닌 **Menu-First** 접근. (식당을 찾고 메뉴를 보는 게 아니라, 메뉴를 고르면 식당을 알려줌)
 - **Live Demo**: (Serverless 배포 예정)
@@ -19,7 +19,7 @@
 - **Framework**: FastAPI (Python 3.10)
 - **Deployment**: AWS Lambda (Serverless Framework) via `mangum` adapter
 - **Data Source**: Naver Search API (Primary), Kakao Local API (Secondary)
-- **Database**: In-Memory Processing + Naver API 실시간 검색 (Stateless)
+- **Caching**: SQLite (`/tmp/mechu_cache.db`) - 동일 쿼리 24시간 캐싱으로 API 호출 절감
 
 ### Frontend (`/frontend`)
 - **Framework**: React 18 (Vite)
@@ -114,6 +114,10 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
     - 식당 제목 클릭 시 네이버 지도 검색 페이지로 이동.
     - 지도 마커 인포윈도우 클릭 시 외부 지도 링크로 이동.
     - 상태: ✅ 완료.
+- **2026-02 (Performance)**: SQLite 캐싱 도입.
+    - `cache_service.py` 생성: 동일 쿼리 결과를 24시간 캐싱.
+    - 캐시 히트 시 API 호출 스킵, 응답 시간 0.1초 미만.
+    - 상태: ✅ 완료 (2026-02-02).
 
 ## 7. 주요 파일 구조
 - `serverless.yml`: AWS 배포 설정 (가장 중요).

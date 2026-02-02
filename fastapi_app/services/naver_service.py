@@ -4,11 +4,13 @@ import concurrent.futures
 from typing import List, Dict, Any, Optional
 from fastapi_app.core.config import get_settings
 from fastapi_app.services.geo_service import GeoService
+from fastapi_app.services.cache_service import CacheService
 
 class NaverService:
     def __init__(self):
         self.settings = get_settings()
         self.geo_service = GeoService()
+        self.cache = CacheService()
         self.base_url = "https://openapi.naver.com/v1/search/local.json"
         self.headers = {
             "X-Naver-Client-Id": self.settings.NAVER_CLIENT_ID,
@@ -49,6 +51,14 @@ class NaverService:
         return []
 
     def search_places(self, query: str, search_mode: str = "popular", user_lat: Optional[float] = None, user_lng: Optional[float] = None) -> List[Dict[str, Any]]:
+        # 🔥 Cache Check
+        cache_key = self.cache.generate_key(query, user_lat, user_lng)
+        cached_data = self.cache.get(cache_key)
+        if cached_data is not None:
+            print(f"🎯 Cache HIT for '{cache_key}'")
+            return cached_data
+        print(f"📡 Cache MISS for '{cache_key}' - calling Naver API")
+
         # 0. Reverse Geocoding if lat/lng provided but query is generic or empty
         # If user just sent lat/lng, we need to find "Where am I?"
         # But usually frontend sends "Gangnam Station" + lat/lng.
@@ -129,9 +139,12 @@ class NaverService:
              # If even 2km has < 5 items, users prefer seeing *something* over nothing, 
              # so we might return the 2km set or just fallback to everything sorted by distance.
              if filtered_items:
+                 self.cache.set(cache_key, filtered_items)
                  return filtered_items
              else:
                  # Fallback: Just return everything sorted by distance
+                 self.cache.set(cache_key, items_with_dist)
                  return items_with_dist
 
+        self.cache.set(cache_key, all_items)
         return all_items
