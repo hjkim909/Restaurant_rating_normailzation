@@ -91,6 +91,28 @@ function App() {
     }
   }
 
+  // 메뉴 뽑기 후 검색
+  const handleMenuSearch = async (menuName) => {
+    setLoading(true)
+    setSelectedCategory(null)
+    setQuery(menuName)
+
+    try {
+      const params = { query: menuName }
+      if (location) {
+        params.lat = location.lat
+        params.lng = location.lng
+      }
+
+      const response = await axios.get('/api/v1/search', { params })
+      setResults(response.data.items)
+    } catch (error) {
+      console.error("Menu search failed", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Extract Categories
   const categories = useMemo(() => {
     if (!results.length) return [];
@@ -120,7 +142,7 @@ function App() {
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold text-orange-600 flex items-center gap-2">
             <Utensils className="w-6 h-6" />
-            오늘 뭐 먹지?
+            Mechu
           </h1>
         </div>
 
@@ -196,7 +218,7 @@ function App() {
                 />
 
                 {/* Random Picker */}
-                <RandomPicker items={filteredResults} userLocation={location} />
+                <RandomPicker items={filteredResults} userLocation={location} onSearchMenu={handleMenuSearch} />
 
                 {/* Content Area */}
                 {viewMode === 'list' ? (
