@@ -40,33 +40,115 @@ class GeminiService:
         user_context: str = None,
         max_restaurants: int = 5 
     ) -> Dict:
+        """기존 메뉴 기반 분석 (하위 호환용)"""
+        return self.analyze_restaurants_for_context(restaurants, user_context, max_restaurants)
+
+    def analyze_restaurants_for_context(
+        self,
+        restaurants: List[Dict],
+        user_context: str = None,
+        max_restaurants: int = 8
+    ) -> Dict:
+        """상황 기반 식당 추천 (개선된 버전)"""
         if not self.client:
             return {"error": "AI Service unavailable (Missing Key or Package)"}
 
-        search_queries = []
-        # Limit to 5 for speed in V1
-        for restaurant in restaurants[:max_restaurants]:
-            query = self._construct_naver_place_query(restaurant)
-            search_queries.append({
-                'restaurant': restaurant,
-                'search_query': query
-            })
+        # 식당 정보 요약 생성
+        restaurant_summaries = []
+        for i, r in enumerate(restaurants[:max_restaurants]):
+            clean_title = r.get('title', '').replace('<b>', '').replace('</b>', '')
+            category = r.get('category', '알 수 없음')
+            address = r.get('roadAddress', '') or r.get('address', '')
+            rating = r.get('rating', 'N/A')
+            restaurant_summaries.append(
+                f"{i+1}. {clean_title} ({category}) - {address}, 평점: {rating}"
+            )
+        
+        restaurants_text = "\n".join(restaurant_summaries)
 
-        restaurant_analyses = self._parallel_analyze_reviews(search_queries)
+        prompt = f"""
+사용자 상황: {user_context or '맛있는 점심 추천'}
 
-        if not restaurant_analyses:
+아래 식당 목록에서 사용자 상황에 가장 적합한 3곳을 선정해주세요.
+각 식당에 대해 구글 검색을 통해 리뷰와 특징을 파악하고, 왜 이 상황에 적합한지 설명해주세요.
+
+식당 목록:
+{restaurants_text}
+
+중요 지침:
+- 사용자 상황(혼밥/다이어트/회식/데이트 등)에 맞는 식당을 우선 선정
+- 리뷰에서 관련 키워드(1인석, 분위기, 양, 가격 등)를 찾아 근거 제시
+- 확신이 없으면 가장 평점이 높은 곳 추천
+
+JSON 형식으로 응답:
+{{
+  "recommendations": [
+    {{
+      "index": 1,
+      "name": "식당명",
+      "reason": "추천 이유 (2-3문장)",
+      "confidence": 0.9,
+      "keywords": ["혼밥 가능", "빠른 식사"]
+    }}
+  ],
+  "summary": "사용자에게 전할 친근한 한 문장 요약"
+}}
+"""
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    tools=[self.search_tool],
+                    temperature=0.7,
+                    response_mime_type="application/json"
+                )
+            )
+            
+            data = json.loads(response.text)
+            
+            # 추천 결과에 원본 식당 정보 매핑
+            recommendations = []
+            for rec in data.get('recommendations', [])[:3]:
+                idx = rec.get('index', 1) - 1
+                if 0 <= idx < len(restaurants):
+                    original = restaurants[idx]
+                    recommendations.append({
+                        'menu': rec.get('name', original.get('title', '')).replace('<b>', '').replace('</b>', ''),
+                        'confidence': rec.get('confidence', 0.7),
+                        'reasoning': rec.get('reason', '추천 식당입니다.'),
+                        'keywords': rec.get('keywords', []),
+                        'restaurants': [original]
+                    })
+            
             return {
-                'recommendations': [],
-                'conversational_response': '죄송합니다. 리뷰 분석 중 오류가 발생했습니다.'
+                'recommendations': recommendations,
+                'conversational_response': data.get('summary', '맛있는 식사 되세요!')
             }
-
-        recommendations = self._aggregate_recommendations(restaurant_analyses, user_context)
-        conversational_response = self._generate_conversational_response(recommendations, user_context)
-
-        return {
-            'recommendations': recommendations[:3], 
-            'conversational_response': conversational_response
-        }
+            
+        except Exception as e:
+            print(f"AI Error: {e}")
+            # 폴백: 평점 높은 순으로 추천
+            sorted_restaurants = sorted(
+                restaurants[:max_restaurants], 
+                key=lambda x: float(x.get('rating', 0) or 0), 
+                reverse=True
+            )[:3]
+            
+            return {
+                'recommendations': [
+                    {
+                        'menu': r.get('title', '').replace('<b>', '').replace('</b>', ''),
+                        'confidence': 0.6,
+                        'reasoning': f"평점 {r.get('rating', 'N/A')}점의 인기 식당입니다.",
+                        'keywords': [],
+                        'restaurants': [r]
+                    }
+                    for r in sorted_restaurants
+                ],
+                'conversational_response': '평점이 높은 식당들을 추천드려요!'
+            }
 
     def _construct_naver_place_query(self, restaurant: Dict) -> str:
         clean_title = restaurant.get('title', '').replace('<b>', '').replace('</b>', '')

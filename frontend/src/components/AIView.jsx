@@ -16,11 +16,15 @@ const CONTEXT_PRESETS = [
 
 export default function AIView({ location }) {
     const [context, setContext] = useState('')
+    const [partySize, setPartySize] = useState(null) // 인원 수 (null = 미설정)
     const [loading, setLoading] = useState(false)
     const [aiResult, setAiResult] = useState(null)
 
     const handleAnalyze = async () => {
-        if (!context) return
+        if (!context && !partySize) {
+            alert("상황을 선택하거나 입력해주세요!")
+            return
+        }
         if (!location) {
             alert("위치를 먼저 설정하거나 검색해주세요!")
             return
@@ -28,11 +32,18 @@ export default function AIView({ location }) {
 
         setLoading(true)
         try {
+            // 인원 수가 설정되면 context에 추가
+            let fullContext = context
+            if (partySize && !context.includes('명')) {
+                fullContext = context ? `${context} (${partySize}명)` : `${partySize}명이서 먹을 곳 추천해줘`
+            }
+
             const payload = {
-                user_context: context,
-                location: typeof location === 'string' ? location : '강남역', // Simple fallback
+                user_context: fullContext,
+                location: typeof location === 'string' ? location : '강남역',
                 lat: location.lat || null,
-                lng: location.lng || null
+                lng: location.lng || null,
+                party_size: partySize
             }
 
             const response = await axios.post('/api/v1/recommend', payload)
@@ -62,8 +73,8 @@ export default function AIView({ location }) {
                                 key={idx}
                                 onClick={() => setContext(preset.context)}
                                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${context === preset.context
-                                        ? 'bg-indigo-600 text-white shadow-md'
-                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
                                     }`}
                             >
                                 {preset.emoji} {preset.label}
@@ -72,8 +83,28 @@ export default function AIView({ location }) {
                     </div>
                 </div>
 
+                {/* 인원 수 선택 */}
+                <div className="mb-4">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">👥 인원 수</p>
+                    <div className="flex gap-2 flex-wrap">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                            <button
+                                key={num}
+                                onClick={() => setPartySize(partySize === num ? null : num)}
+                                className={`w-10 h-10 rounded-full text-sm font-bold transition-all ${partySize === num
+                                        ? 'bg-indigo-600 text-white shadow-md'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                    }`}
+                            >
+                                {num}
+                            </button>
+                        ))}
+                        <span className="flex items-center text-xs text-gray-400 ml-1">명</span>
+                    </div>
+                </div>
+
                 <textarea
-                    className="w-full p-4 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none bg-white text-gray-800 h-32"
+                    className="w-full p-4 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none bg-white text-gray-800 h-24"
                     placeholder="상황을 자유롭게 설명하거나 위의 빠른 선택을 눌러보세요!"
                     value={context}
                     onChange={(e) => setContext(e.target.value)}
@@ -82,7 +113,7 @@ export default function AIView({ location }) {
                 <div className="mt-4 flex justify-end">
                     <button
                         onClick={handleAnalyze}
-                        disabled={loading || !context}
+                        disabled={loading || (!context && !partySize)}
                         className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm shadow-indigo-200"
                     >
                         {loading ? (
