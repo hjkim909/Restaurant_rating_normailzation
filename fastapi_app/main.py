@@ -1,8 +1,8 @@
 import sys
 import os
 
-# Add vendor directory to path for Lambda
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vendor'))
+# Add vendor directory to path for Lambda (Must be first to override conflicts)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'vendor'))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

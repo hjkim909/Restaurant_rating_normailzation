@@ -8,31 +8,40 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 try:
     from google import genai
     from google.genai import types
-except ImportError:
+except ImportError as e:
     genai = None
     types = None
-    logging.warning("google-genai not installed. AI mode will not work.")
+    import_error_msg = str(e)
+    logging.warning(f"google-genai not installed: {e}")
 
 from fastapi_app.core.config import get_settings
 
 class GeminiService:
     def __init__(self):
         self.settings = get_settings()
+        self.error_reason = None
+        
         if not self.settings.GEMINI_API_KEY:
              logging.warning("GEMINI_API_KEY not found.")
              self.client = None
+             self.error_reason = "API Key not configured"
              return
 
         if genai is None:
              self.client = None
+             self.error_reason = f"Lib missing: {import_error_msg}"
              return
 
-        self.client = genai.Client(api_key=self.settings.GEMINI_API_KEY)
-        self.model_name = 'gemini-1.5-flash'
-        self.search_tool = types.Tool(
-            google_search=types.GoogleSearch()
-        )
-        self.logger = logging.getLogger(__name__)
+        try:
+            self.client = genai.Client(api_key=self.settings.GEMINI_API_KEY)
+            self.model_name = 'gemini-flash-latest'
+            self.search_tool = types.Tool(
+                google_search=types.GoogleSearch()
+            )
+            self.logger = logging.getLogger(__name__)
+        except Exception as e:
+            self.client = None
+            self.error_reason = f"Init failed: {str(e)}"
 
     def analyze_restaurants_for_menu(
         self,
@@ -52,7 +61,8 @@ class GeminiService:
         """상황 기반 식당 추천 (개선된 버전)"""
         if not self.client:
             # AI 서비스 불가 시에도 AIResponse 형식으로 반환
-            return self._fallback_recommendations(restaurants, max_restaurants, "AI 서비스가 현재 사용 불가합니다.")
+            msg = f"AI 서비스 불가 ({self.error_reason})" if self.error_reason else "AI 서비스 연결 실패"
+            return self._fallback_recommendations(restaurants, max_restaurants, msg)
 
         # 식당 정보 요약 생성
         restaurant_summaries = []
@@ -130,7 +140,7 @@ JSON 형식으로 응답:
             
         except Exception as e:
             print(f"AI Error: {e}")
-            return self._fallback_recommendations(restaurants, max_restaurants, '평점이 높은 식당들을 추천드려요!')
+            return self._fallback_recommendations(restaurants, max_restaurants, f"AI 오류: {str(e)}")
     
     def _fallback_recommendations(self, restaurants: List[Dict], max_restaurants: int, message: str) -> Dict:
         """AI 실패 시 평점 기준 폴백 추천"""

@@ -8,5 +8,4 @@ pydantic-settings==2.2.1
 geopy==2.4.1
 certifi
 exceptiongroup
-# AI features disabled for initial deployment speed
-# google-genai 
+google-genai 
