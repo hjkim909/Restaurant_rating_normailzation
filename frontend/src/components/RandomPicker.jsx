@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2, Ticket, RefreshCw } from 'lucide-react';
 import KakaoMap from './KakaoMap';
+import ShareButton from './ShareButton';
 
 export default function RandomPicker({ items, userLocation }) {
     const [selectedItem, setSelectedItem] = useState(null);
@@ -79,6 +80,7 @@ export default function RandomPicker({ items, userLocation }) {
                                     <RefreshCw className="w-4 h-4" />
                                     다시 뽑기
                                 </button>
+                                <ShareButton place={selectedItem} />
                                 {selectedItem.link && (
                                     <a
                                         href={selectedItem.link}
