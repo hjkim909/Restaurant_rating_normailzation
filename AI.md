@@ -11,6 +11,12 @@
     - **장르 필터링**: "한식", "일식" 등 카테고리별 보기.
     - **랜덤 메뉴**: 결정 장애 해결을 위한 뽑기 기능.
     - **지도 보기**: 리스트와 지도를 오가는 하이브리드 UX (Kakao Maps).
+- **신규 기능 (2026-02)**:
+    - **SQLite 캐싱**: 동일 쿼리 24시간 캐싱으로 API 호출 절감.
+    - **공유 기능**: Web Share API + 클립보드 복사로 식당 정보 공유.
+    - **메뉴 뽑기**: 랜덤 메뉴 선택 → 해당 메뉴 가게 검색 연동.
+    - **AI 상황 프리셋**: 혼밥/다이어트/해장 등 8개 빠른 선택 버튼.
+    - **AI 추천 개선**: 상황 기반 검색 + 인원 수 설정(1~8명) 지원.
 
 ## 2. 기술 스택 (Tech Stack)
 기존 Streamlit 모놀리식 구조에서 **Serverless MSA**로 완전히 전환되었습니다.
@@ -145,3 +151,4 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
 |-----|-----|-----|
 | 2026-01 (초) | AWS 키 유출로 `AWSCompromisedKeyQuarantine` 적용 | 키 재발급, AI.md에 보안 가이드라인 추가 |
 | 2026-01-19 | 배포 중 키 차단 재발생 | 키 재발급, **pre-commit hook 설치** |
+| 2026-02-03 | Google Gemini API Key 유출 (403 Error) | Key 재발급, `.env` 보안 상태 점검 (OK), `google-genai` 수동 벤더링 배포 성공 |
