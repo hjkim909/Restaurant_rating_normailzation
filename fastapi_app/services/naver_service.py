@@ -53,7 +53,35 @@ class NaverService:
     def search_places(self, query: str, search_mode: str = "popular", user_lat: Optional[float] = None, user_lng: Optional[float] = None, optimize_for_ai: bool = False) -> List[Dict[str, Any]]:
         # 🔥 Cache Check
         cache_key = self.cache.generate_key(query + ("_ai" if optimize_for_ai else ""), user_lat, user_lng)
-        # ... (중략) ...
+        cached_data = self.cache.get(cache_key)
+        if cached_data is not None:
+            print(f"🎯 Cache HIT for '{cache_key}'")
+            return cached_data
+        print(f"📡 Cache MISS for '{cache_key}' - calling Naver API")
+
+        # 0. Reverse Geocoding if lat/lng provided but query is generic or empty
+        # If user just sent lat/lng, we need to find "Where am I?"
+        # But usually frontend sends "Gangnam Station" + lat/lng.
+        # If query is empty or just "맛집", we MUST use coords.
+        
+        current_location_name = ""
+        if user_lat and user_lng:
+             address = self.geo_service.get_address_from_coords(user_lat, user_lng)
+             if address:
+                 current_location_name = address
+                 # If query is generic, prepend location
+                 if "맛집" not in query and not query.strip():
+                     query = f"{address} 맛집"
+                 elif query.strip() == "맛집":
+                     query = f"{address} 맛집"
+        
+        # 1. Location Subdivision
+        target_locations = [query]
+        for major_loc, subdivisions in self.location_subdivisions.items():
+            if major_loc in query:
+                base_query = query.replace(major_loc, '{}')
+                target_locations = [base_query.format(sub) for sub in subdivisions]
+                break
 
         # 2. Category Explosion
         if optimize_for_ai:
