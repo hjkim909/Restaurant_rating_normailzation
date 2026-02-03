@@ -2,6 +2,18 @@ import { useState } from 'react'
 import axios from 'axios'
 import { Sparkles, MessageSquare, ThumbsUp } from 'lucide-react'
 
+// 상황 프리셋 목록
+const CONTEXT_PRESETS = [
+    { emoji: '🍱', label: '혼밥', context: '혼자 편하게 먹을 수 있는 곳 추천해줘. 1인 식사 가능한 곳으로.' },
+    { emoji: '🥗', label: '다이어트', context: '칼로리 낮고 건강한 음식 먹고 싶어. 샐러드나 저칼로리 메뉴 위주로.' },
+    { emoji: '🍲', label: '해장', context: '속이 안 좋아서 해장음식 필요해. 국물 있고 따뜻한 음식으로.' },
+    { emoji: '👥', label: '회식', context: '동료들과 단체 회식할 건데, 분위기 좋고 다양한 메뉴 있는 곳.' },
+    { emoji: '💑', label: '데이트', context: '연인과 데이트하는데 분위기 좋고 맛있는 곳 추천해줘.' },
+    { emoji: '💰', label: '가성비', context: '저렴하고 양 많은 가성비 좋은 맛집 찾아줘.' },
+    { emoji: '🌶️', label: '매운맛', context: '오늘 매운 거 땡기는데 맵고 자극적인 음식 추천해줘.' },
+    { emoji: '☕', label: '가볍게', context: '간단하게 가볍게 먹을 수 있는 브런치나 카페 추천해줘.' },
+];
+
 export default function AIView({ location }) {
     const [context, setContext] = useState('')
     const [loading, setLoading] = useState(false)
@@ -41,9 +53,28 @@ export default function AIView({ location }) {
                     <h2 className="font-bold text-lg text-gray-800">AI 미식가</h2>
                 </div>
 
+                {/* 상황 프리셋 버튼 */}
+                <div className="mb-4">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">💡 빠른 선택</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                        {CONTEXT_PRESETS.map((preset, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setContext(preset.context)}
+                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${context === preset.context
+                                        ? 'bg-indigo-600 text-white shadow-md'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                    }`}
+                            >
+                                {preset.emoji} {preset.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <textarea
                     className="w-full p-4 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none bg-white text-gray-800 h-32"
-                    placeholder="예: '오늘 속이 좀 안 좋은데 부드러운 음식 없을까?', '친구랑 가는데 분위기 좋은 곳 추천해줘'"
+                    placeholder="상황을 자유롭게 설명하거나 위의 빠른 선택을 눌러보세요!"
                     value={context}
                     onChange={(e) => setContext(e.target.value)}
                 />
