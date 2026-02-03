@@ -34,10 +34,10 @@ class NaverService:
             '분식', '떡볶이', '김밥', '카페'
         ]
 
-    def _fetch_page(self, query: str, sort: str = "comment") -> List[Dict[str, Any]]:
+    def _fetch_page(self, query: str, sort: str = "comment", display_count: int = 5) -> List[Dict[str, Any]]:
         params = {
             "query": query,
-            "display": 5,
+            "display": display_count,
             "start": 1,
             "sort": sort
         }
@@ -50,46 +50,24 @@ class NaverService:
             print(f"Error fetching {query}: {e}")
         return []
 
-    def search_places(self, query: str, search_mode: str = "popular", user_lat: Optional[float] = None, user_lng: Optional[float] = None) -> List[Dict[str, Any]]:
+    def search_places(self, query: str, search_mode: str = "popular", user_lat: Optional[float] = None, user_lng: Optional[float] = None, optimize_for_ai: bool = False) -> List[Dict[str, Any]]:
         # 🔥 Cache Check
-        cache_key = self.cache.generate_key(query, user_lat, user_lng)
-        cached_data = self.cache.get(cache_key)
-        if cached_data is not None:
-            print(f"🎯 Cache HIT for '{cache_key}'")
-            return cached_data
-        print(f"📡 Cache MISS for '{cache_key}' - calling Naver API")
-
-        # 0. Reverse Geocoding if lat/lng provided but query is generic or empty
-        # If user just sent lat/lng, we need to find "Where am I?"
-        # But usually frontend sends "Gangnam Station" + lat/lng.
-        # If query is empty or just "맛집", we MUST use coords.
-        
-        current_location_name = ""
-        if user_lat and user_lng:
-             address = self.geo_service.get_address_from_coords(user_lat, user_lng)
-             if address:
-                 current_location_name = address
-                 # If query is generic, prepend location
-                 if "맛집" not in query and not query.strip():
-                     query = f"{address} 맛집"
-                 elif query.strip() == "맛집":
-                     query = f"{address} 맛집"
-        
-        # 1. Location Subdivision
-        target_locations = [query]
-        for major_loc, subdivisions in self.location_subdivisions.items():
-            if major_loc in query:
-                base_query = query.replace(major_loc, '{}')
-                target_locations = [base_query.format(sub) for sub in subdivisions]
-                break 
+        cache_key = self.cache.generate_key(query + ("_ai" if optimize_for_ai else ""), user_lat, user_lng)
+        # ... (중략) ...
 
         # 2. Category Explosion
-        detected_categories = [k for k in self.detailed_keywords if k in query]
-        target_keywords = detected_categories if detected_categories else self.detailed_keywords
+        if optimize_for_ai:
+            # AI 모드에서는 카테고리 폭발을 스킵하여 속도 최적화 (API 타임아웃 방지)
+            target_keywords = ['']
+        else:
+            detected_categories = [k for k in self.detailed_keywords if k in query]
+            target_keywords = detected_categories if detected_categories else self.detailed_keywords
 
         all_items = []
         seen_keys = set()
         
+        display_cnt = 10 if optimize_for_ai else 5
+
         # Parallel Execution
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             futures = []
@@ -99,7 +77,7 @@ class NaverService:
                         sub_query = loc
                     else:
                         sub_query = f"{loc} {kw}"
-                    futures.append(executor.submit(self._fetch_page, sub_query, search_mode))
+                    futures.append(executor.submit(self._fetch_page, sub_query, search_mode, display_cnt))
             
             for future in concurrent.futures.as_completed(futures):
                 items = future.result()

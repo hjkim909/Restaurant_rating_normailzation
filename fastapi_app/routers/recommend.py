@@ -74,7 +74,8 @@ async def recommend_menu(
         search_query, 
         search_mode="comment",  # "comment"=리뷰순 (네이버 API 기본값)
         user_lat=request.lat,
-        user_lng=request.lng
+        user_lng=request.lng,
+        optimize_for_ai=True # 카테고리 폭발 방지 (속도 향상)
     )
     print(f"[DEBUG] AI Recommend - candidates count: {len(candidates) if candidates else 0}")
     
