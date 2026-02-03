@@ -51,7 +51,8 @@ class GeminiService:
     ) -> Dict:
         """상황 기반 식당 추천 (개선된 버전)"""
         if not self.client:
-            return {"error": "AI Service unavailable (Missing Key or Package)"}
+            # AI 서비스 불가 시에도 AIResponse 형식으로 반환
+            return self._fallback_recommendations(restaurants, max_restaurants, "AI 서비스가 현재 사용 불가합니다.")
 
         # 식당 정보 요약 생성
         restaurant_summaries = []
@@ -129,26 +130,36 @@ JSON 형식으로 응답:
             
         except Exception as e:
             print(f"AI Error: {e}")
-            # 폴백: 평점 높은 순으로 추천
-            sorted_restaurants = sorted(
-                restaurants[:max_restaurants], 
-                key=lambda x: float(x.get('rating', 0) or 0), 
-                reverse=True
-            )[:3]
-            
-            return {
-                'recommendations': [
-                    {
-                        'menu': r.get('title', '').replace('<b>', '').replace('</b>', ''),
-                        'confidence': 0.6,
-                        'reasoning': f"평점 {r.get('rating', 'N/A')}점의 인기 식당입니다.",
-                        'keywords': [],
-                        'restaurants': [r]
-                    }
-                    for r in sorted_restaurants
-                ],
-                'conversational_response': '평점이 높은 식당들을 추천드려요!'
-            }
+            return self._fallback_recommendations(restaurants, max_restaurants, '평점이 높은 식당들을 추천드려요!')
+    
+    def _fallback_recommendations(self, restaurants: List[Dict], max_restaurants: int, message: str) -> Dict:
+        """AI 실패 시 평점 기준 폴백 추천"""
+        def safe_rating(r):
+            try:
+                val = r.get('rating') or r.get('userRating') or 0
+                return float(val) if val else 0.0
+            except (ValueError, TypeError):
+                return 0.0
+        
+        sorted_restaurants = sorted(
+            restaurants[:max_restaurants], 
+            key=safe_rating,
+            reverse=True
+        )[:3]
+        
+        return {
+            'recommendations': [
+                {
+                    'menu': r.get('title', '').replace('<b>', '').replace('</b>', ''),
+                    'confidence': 0.6,
+                    'reasoning': f"평점 {r.get('userRating') or r.get('rating', 'N/A')}점의 인기 식당입니다.",
+                    'keywords': [],
+                    'restaurants': [r]
+                }
+                for r in sorted_restaurants
+            ],
+            'conversational_response': message
+        }
 
     def _construct_naver_place_query(self, restaurant: Dict) -> str:
         clean_title = restaurant.get('title', '').replace('<b>', '').replace('</b>', '')

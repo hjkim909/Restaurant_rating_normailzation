@@ -64,37 +64,19 @@ async def recommend_menu(
     ai_service: GeminiService = Depends(get_ai_service),
     naver_service: NaverService = Depends(get_naver_service)
 ):
-    # 1. 상황 기반 검색 쿼리 생성
-    context_keyword = extract_context_keyword(request.user_context)
-    
-    # 인원 수가 명시되면 키워드에 반영
-    if request.party_size:
-        if request.party_size == 1:
-            context_keyword = "혼밥 1인식사"
-        elif request.party_size <= 4:
-            context_keyword = context_keyword or "소모임"
-        else:
-            context_keyword = "단체석 회식"
-    
-    # 검색 쿼리: "강남역 혼밥 맛집" 형태
-    search_query = f"{request.location} {context_keyword} 맛집".strip()
+    # 1. 일반 맛집 검색 (상황 키워드 없이)
+    # 네이버 API는 상황 키워드(혼밥, 해장 등) 검색 시 결과가 없을 수 있음
+    # 따라서 일반 검색 후 AI가 상황에 맞게 필터링
+    search_query = f"{request.location} 맛집"
+    print(f"[DEBUG] AI Recommend - search_query: {search_query}, lat: {request.lat}, lng: {request.lng}")
     
     candidates = naver_service.search_places(
         search_query, 
-        search_mode="popular",
+        search_mode="comment",  # "comment"=리뷰순 (네이버 API 기본값)
         user_lat=request.lat,
         user_lng=request.lng
     )
-    
-    if not candidates:
-        # 키워드 없이 재시도
-        fallback_query = f"{request.location} 맛집"
-        candidates = naver_service.search_places(
-            fallback_query,
-            search_mode="popular",
-            user_lat=request.lat,
-            user_lng=request.lng
-        )
+    print(f"[DEBUG] AI Recommend - candidates count: {len(candidates) if candidates else 0}")
     
     if not candidates:
         return {"conversational_response": "주변에 맛집을 찾을 수 없어요.", "recommendations": []}
