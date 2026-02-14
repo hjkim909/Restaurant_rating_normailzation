@@ -152,3 +152,4 @@ cd frontend && npm run build && cd .. && set -a; source .env; set +a; npx server
 | 2026-01 (초) | AWS 키 유출로 `AWSCompromisedKeyQuarantine` 적용 | 키 재발급, AI.md에 보안 가이드라인 추가 |
 | 2026-01-19 | 배포 중 키 차단 재발생 | 키 재발급, **pre-commit hook 설치** |
 | 2026-02-03 | Google Gemini API Key 유출 (403 Error) | Key 재발급, `.env` 보안 상태 점검 (OK), `google-genai` 수동 벤더링 배포 성공 |
+| 2026-02-03 | AI Tool + JSON 호환성 이슈 (400 Error) | `GoogleSearch` 툴과 `response_mime_type="application/json"` 동시 사용 불가 확인. (추후 수정 필요) |

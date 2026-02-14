@@ -1,7 +1,13 @@
 __pycache__/
 *.pyc
 .env
+.env.production
 .DS_Store
 restaurant_cache.json
 api_usage.csv
 .agent/
+.serverless/
+vendor/
+node_modules/
+*.db
+.vercel/

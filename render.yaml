@@ -1,0 +1,22 @@
+# Render Blueprint - Mechu API Backend
+# Why: AWS Lambda 배포의 의존성 문제를 해결하기 위해 Render로 전환
+# 일반 Python 환경이므로 pip install로 모든 의존성 해결 가능
+services:
+  - type: web
+    name: mechu-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn fastapi_app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NAVER_CLIENT_ID
+        sync: false
+      - key: NAVER_CLIENT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: KAKAO_REST_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.10.0"
+    plan: free
+    healthCheckPath: /health

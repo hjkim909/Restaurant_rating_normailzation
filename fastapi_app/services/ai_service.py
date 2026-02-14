@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import re
 import logging
 from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -107,17 +108,18 @@ JSON 형식으로 응답:
 """
 
         try:
+            # Why: GoogleSearch Tool과 response_mime_type="application/json"은 동시 사용 불가 (400 Error)
+            # 따라서 response_mime_type을 제거하고 텍스트에서 JSON을 수동 파싱
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     tools=[self.search_tool],
                     temperature=0.7,
-                    response_mime_type="application/json"
                 )
             )
             
-            data = json.loads(response.text)
+            data = self._parse_json_from_text(response.text)
             
             # 추천 결과에 원본 식당 정보 매핑
             recommendations = []
@@ -222,14 +224,54 @@ JSON 응답:
                 config=types.GenerateContentConfig(
                     tools=[self.search_tool],
                     temperature=0.7,
-                    response_mime_type="application/json"
                 )
             )
-            data = json.loads(response.text)
+            data = self._parse_json_from_text(response.text)
             return {'restaurant': restaurant, 'analysis': data}
         except Exception as e:
             print(f"AI Error ({clean_title}): {e}")
             return None
+
+    def _parse_json_from_text(self, text: str) -> Dict:
+        """Gemini 응답 텍스트에서 JSON 블록을 안전하게 추출
+        
+        Why: GoogleSearch Tool 사용 시 response_mime_type="application/json" 설정 불가.
+        Gemini가 마크다운 코드블록이나 자유 텍스트 안에 JSON을 포함하여 응답하므로 파싱 필요.
+        """
+        if not text:
+            return {}
+        
+        # 1차 시도: 전체 텍스트가 유효한 JSON인 경우
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+        
+        # 2차 시도: ```json ... ``` 코드블록에서 추출
+        code_block_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
+        if code_block_match:
+            try:
+                return json.loads(code_block_match.group(1).strip())
+            except json.JSONDecodeError:
+                pass
+        
+        # 3차 시도: 첫 번째 { ... } 블록 추출 (중첩 브레이스 대응)
+        brace_start = text.find('{')
+        if brace_start != -1:
+            depth = 0
+            for i in range(brace_start, len(text)):
+                if text[i] == '{':
+                    depth += 1
+                elif text[i] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        try:
+                            return json.loads(text[brace_start:i+1])
+                        except json.JSONDecodeError:
+                            break
+        
+        self.logger.warning(f"JSON 파싱 실패. 원본 텍스트: {text[:200]}...")
+        return {}
 
     def _aggregate_recommendations(self, analyses: List[Dict], user_context: Optional[str]) -> List[Dict]:
         menu_scores = {}
