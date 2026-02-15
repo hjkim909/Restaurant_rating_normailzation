@@ -31,6 +31,7 @@ export default function AIView({ location }) {
         }
 
         setLoading(true)
+        setAiResult(null) // 이전 결과 초기화
         try {
             // 인원 수가 설정되면 context에 추가
             let fullContext = context
@@ -50,7 +51,14 @@ export default function AIView({ location }) {
             setAiResult(response.data)
         } catch (error) {
             console.error("AI Analysis failed", error)
-            alert("AI 분석 중 오류가 발생했습니다.")
+            // Why: 에러 상황별로 사용자에게 친절한 안내
+            if (error.code === 'ECONNABORTED') {
+                alert("서버 응답에 시간이 오래 걸리고 있어요. 잠시 후 다시 시도해주세요! (서버 부팅 중일 수 있습니다)")
+            } else if (error.response?.status === 422) {
+                alert("위치 정보가 필요합니다. '빠른 검색' 탭에서 위치를 먼저 설정해주세요!")
+            } else {
+                alert("AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
+            }
         } finally {
             setLoading(false)
         }
@@ -92,8 +100,8 @@ export default function AIView({ location }) {
                                 key={num}
                                 onClick={() => setPartySize(partySize === num ? null : num)}
                                 className={`w-10 h-10 rounded-full text-sm font-bold transition-all ${partySize === num
-                                        ? 'bg-indigo-600 text-white shadow-md'
-                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
                                     }`}
                             >
                                 {num}

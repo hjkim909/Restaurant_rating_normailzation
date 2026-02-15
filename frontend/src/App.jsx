@@ -10,6 +10,8 @@ import KakaoMap from './components/KakaoMap'
 if (import.meta.env.VITE_API_BASE_URL) {
   axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
 }
+// Why: Render 무료 tier는 15분 비활성 후 슬립 → 첫 요청 시 30~60초 콜드 스타트
+axios.defaults.timeout = 60000
 
 function App() {
   const [activeTab, setActiveTab] = useState('search') // 'search' | 'ai'

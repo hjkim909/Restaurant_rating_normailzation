@@ -35,7 +35,8 @@ class GeminiService:
 
         try:
             self.client = genai.Client(api_key=self.settings.GEMINI_API_KEY)
-            self.model_name = 'gemini-flash-latest'
+            # Why: gemini-2.0-flash-lite는 무료 tier 쿼타가 더 높음 (RPM 30 vs 15)
+            self.model_name = 'gemini-2.0-flash-lite'
             self.search_tool = types.Tool(
                 google_search=types.GoogleSearch()
             )
@@ -107,45 +108,63 @@ JSON 형식으로 응답:
 }}
 """
 
-        try:
-            # Why: GoogleSearch Tool과 response_mime_type="application/json"은 동시 사용 불가 (400 Error)
-            # 따라서 response_mime_type을 제거하고 텍스트에서 JSON을 수동 파싱
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    tools=[self.search_tool],
-                    temperature=0.7,
+        # Why: 429 RESOURCE_EXHAUSTED 대응 - 최대 2회 retry (3초 간격)
+        last_error = None
+        for attempt in range(2):
+            try:
+                # Why: GoogleSearch Tool과 response_mime_type="application/json"은 동시 사용 불가 (400 Error)
+                # 따라서 response_mime_type을 제거하고 텍스트에서 JSON을 수동 파싱
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        tools=[self.search_tool],
+                        temperature=0.7,
+                    )
                 )
-            )
-            
-            data = self._parse_json_from_text(response.text)
-            
-            # 추천 결과에 원본 식당 정보 매핑
-            recommendations = []
-            for rec in data.get('recommendations', [])[:3]:
-                idx = rec.get('index', 1) - 1
-                if 0 <= idx < len(restaurants):
-                    original = restaurants[idx]
-                    recommendations.append({
-                        'menu': rec.get('name', original.get('title', '')).replace('<b>', '').replace('</b>', ''),
-                        'confidence': rec.get('confidence', 0.7),
-                        'reasoning': rec.get('reason', '추천 식당입니다.'),
-                        'keywords': rec.get('keywords', []),
-                        'restaurants': [original]
-                    })
-            
-            return {
-                'recommendations': recommendations,
-                'conversational_response': data.get('summary', '맛있는 식사 되세요!')
-            }
-            
-        except Exception as e:
-            print(f"AI Error: {e}")
-            return self._fallback_recommendations(restaurants, max_restaurants, f"AI 오류: {str(e)}")
+                
+                data = self._parse_json_from_text(response.text)
+                
+                # 추천 결과에 원본 식당 정보 매핑
+                recommendations = []
+                for rec in data.get('recommendations', [])[:3]:
+                    idx = rec.get('index', 1) - 1
+                    if 0 <= idx < len(restaurants):
+                        original = restaurants[idx]
+                        recommendations.append({
+                            'menu': rec.get('name', original.get('title', '')).replace('<b>', '').replace('</b>', ''),
+                            'confidence': rec.get('confidence', 0.7),
+                            'reasoning': rec.get('reason', '추천 식당입니다.'),
+                            'keywords': rec.get('keywords', []),
+                            'restaurants': [original]
+                        })
+                
+                return {
+                    'recommendations': recommendations,
+                    'conversational_response': data.get('summary', '맛있는 식사 되세요!')
+                }
+                
+            except Exception as e:
+                last_error = e
+                error_str = str(e)
+                # 429 Rate Limit이면 잠시 대기 후 재시도
+                if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str:
+                    self.logger.warning(f"Gemini API 쿼타 초과 (시도 {attempt+1}/2), {3}초 후 재시도...")
+                    time.sleep(3)
+                    continue
+                else:
+                    # 다른 에러는 재시도 없이 fallback
+                    break
+        
+        print(f"AI Error: {last_error}")
+        return self._fallback_recommendations(restaurants, max_restaurants)
     
-    def _fallback_recommendations(self, restaurants: List[Dict], max_restaurants: int, message: str) -> Dict:
-        """AI 실패 시 평점 기준 폴백 추천"""
+    def _fallback_recommendations(self, restaurants: List[Dict], max_restaurants: int, message: str = None) -> Dict:
+        """AI 실패 시 거리+평점 기반 폴백 추천
+        
+        Why: AI가 사용 불가할 때도 사용자에게 의미 있는 추천 제공.
+        거리(가까운 순)와 평점(높은 순)을 함께 고려하여 정렬.
+        """
         def safe_rating(r):
             try:
                 val = r.get('rating') or r.get('userRating') or 0
@@ -153,25 +172,66 @@ JSON 형식으로 응답:
             except (ValueError, TypeError):
                 return 0.0
         
-        sorted_restaurants = sorted(
-            restaurants[:max_restaurants], 
-            key=safe_rating,
-            reverse=True
-        )[:3]
+        def safe_distance(r):
+            try:
+                return float(r.get('distance', 999999))
+            except (ValueError, TypeError):
+                return 999999
+        
+        # 거리순으로 먼저 필터 (가까운 곳 우선), 그 중 평점 높은 순
+        candidates = restaurants[:max_restaurants]
+        # 거리 정보가 있는 경우 거리+평점 하이브리드 정렬
+        has_distance = any(r.get('distance') for r in candidates)
+        if has_distance:
+            sorted_restaurants = sorted(
+                candidates,
+                key=lambda r: (-safe_rating(r), safe_distance(r))
+            )[:3]
+        else:
+            sorted_restaurants = sorted(
+                candidates,
+                key=safe_rating,
+                reverse=True
+            )[:3]
+        
+        # 음식점 카테고리가 아닌 것 필터 (카페, 편의점 등 제외)
+        food_categories = ['한식', '중식', '일식', '양식', '분식', '음식점', '매운탕', '치킨', '피자', '햄버거', '국밥', '고기']
+        filtered = [r for r in sorted_restaurants if any(cat in (r.get('category', '') or '') for cat in food_categories)]
+        if not filtered:
+            filtered = sorted_restaurants  # 필터 후 없으면 원본 유지
+        
+        fallback_msg = message or '주변 인기 맛집을 추천해드릴게요! 🍽️'
         
         return {
             'recommendations': [
                 {
                     'menu': r.get('title', '').replace('<b>', '').replace('</b>', ''),
                     'confidence': 0.6,
-                    'reasoning': f"평점 {r.get('userRating') or r.get('rating', 'N/A')}점의 인기 식당입니다.",
+                    'reasoning': self._build_fallback_reason(r),
                     'keywords': [],
                     'restaurants': [r]
                 }
-                for r in sorted_restaurants
+                for r in filtered
             ],
-            'conversational_response': message
+            'conversational_response': fallback_msg
         }
+    
+    def _build_fallback_reason(self, r: Dict) -> str:
+        """fallback 추천 이유 문구 생성"""
+        parts = []
+        rating = r.get('userRating') or r.get('rating')
+        if rating:
+            parts.append(f"평점 {rating}점")
+        distance = r.get('distance')
+        if distance:
+            if distance < 1000:
+                parts.append(f"도보 {int(distance)}m 거리")
+            else:
+                parts.append(f"{distance/1000:.1f}km 거리")
+        category = r.get('category', '')
+        if category:
+            parts.append(f"{category.split('>')[-1].strip()} 전문")
+        return ', '.join(parts) + '의 인기 맛집입니다.' if parts else '인기 식당입니다.'
 
     def _construct_naver_place_query(self, restaurant: Dict) -> str:
         clean_title = restaurant.get('title', '').replace('<b>', '').replace('</b>', '')
