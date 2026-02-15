@@ -108,56 +108,84 @@ JSON 형식으로 응답:
 }}
 """
 
-        # Why: 429 RESOURCE_EXHAUSTED 대응 - 최대 2회 retry (3초 간격)
+        # 전략: GoogleSearch 있는 모드 시도 → 429 시 GoogleSearch 없는 경량 모드 → 최종 fallback
+        # Why: GoogleSearch가 토큰을 많이 소모하므로, 429 시 검색 없이 식당 목록만으로 분석
         last_error = None
-        for attempt in range(2):
-            try:
-                # Why: GoogleSearch Tool과 response_mime_type="application/json"은 동시 사용 불가 (400 Error)
-                # 따라서 response_mime_type을 제거하고 텍스트에서 JSON을 수동 파싱
-                response = self.client.models.generate_content(
-                    model=self.model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        tools=[self.search_tool],
-                        temperature=0.7,
-                    )
-                )
-                
-                data = self._parse_json_from_text(response.text)
-                
-                # 추천 결과에 원본 식당 정보 매핑
-                recommendations = []
-                for rec in data.get('recommendations', [])[:3]:
-                    idx = rec.get('index', 1) - 1
-                    if 0 <= idx < len(restaurants):
-                        original = restaurants[idx]
-                        recommendations.append({
-                            'menu': rec.get('name', original.get('title', '')).replace('<b>', '').replace('</b>', ''),
-                            'confidence': rec.get('confidence', 0.7),
-                            'reasoning': rec.get('reason', '추천 식당입니다.'),
-                            'keywords': rec.get('keywords', []),
-                            'restaurants': [original]
-                        })
-                
-                return {
-                    'recommendations': recommendations,
-                    'conversational_response': data.get('summary', '맛있는 식사 되세요!')
-                }
-                
-            except Exception as e:
-                last_error = e
-                error_str = str(e)
-                # 429 Rate Limit이면 잠시 대기 후 재시도
-                if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str:
-                    self.logger.warning(f"Gemini API 쿼타 초과 (시도 {attempt+1}/2), {3}초 후 재시도...")
-                    time.sleep(3)
-                    continue
-                else:
-                    # 다른 에러는 재시도 없이 fallback
-                    break
         
-        print(f"AI Error: {last_error}")
+        # 1차 시도: GoogleSearch Tool 포함 (고품질)
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    tools=[self.search_tool],
+                    temperature=0.7,
+                )
+            )
+            
+            result = self._process_ai_response(response.text, restaurants)
+            if result:
+                return result
+                
+        except Exception as e:
+            last_error = e
+            error_str = str(e)
+            if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str:
+                self.logger.warning("GoogleSearch 모드 429 에러, 경량 모드로 전환...")
+            else:
+                self.logger.error(f"AI Error (GoogleSearch mode): {e}")
+        
+        # 2차 시도: GoogleSearch 없는 경량 모드 (쿼타 절약)
+        try:
+            self.logger.info("경량 AI 분석 모드 실행 (GoogleSearch 없음)")
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    # Why: GoogleSearch 제거로 쿼타 대폭 절약, JSON 모드 사용 가능
+                    response_mime_type="application/json",
+                )
+            )
+            
+            result = self._process_ai_response(response.text, restaurants)
+            if result:
+                return result
+                
+        except Exception as e:
+            last_error = e
+            self.logger.error(f"AI Error (lightweight mode): {e}")
+        
+        print(f"AI Error (all modes failed): {last_error}")
         return self._fallback_recommendations(restaurants, max_restaurants)
+    
+    def _process_ai_response(self, response_text: str, restaurants: List[Dict]) -> Optional[Dict]:
+        """AI 응답 텍스트를 파싱하여 추천 결과로 변환"""
+        data = self._parse_json_from_text(response_text)
+        if not data or not data.get('recommendations'):
+            return None
+        
+        recommendations = []
+        for rec in data.get('recommendations', [])[:3]:
+            idx = rec.get('index', 1) - 1
+            if 0 <= idx < len(restaurants):
+                original = restaurants[idx]
+                recommendations.append({
+                    'menu': rec.get('name', original.get('title', '')).replace('<b>', '').replace('</b>', ''),
+                    'confidence': rec.get('confidence', 0.7),
+                    'reasoning': rec.get('reason', '추천 식당입니다.'),
+                    'keywords': rec.get('keywords', []),
+                    'restaurants': [original]
+                })
+        
+        if not recommendations:
+            return None
+            
+        return {
+            'recommendations': recommendations,
+            'conversational_response': data.get('summary', '맛있는 식사 되세요!')
+        }
+
     
     def _fallback_recommendations(self, restaurants: List[Dict], max_restaurants: int, message: str = None) -> Dict:
         """AI 실패 시 거리+평점 기반 폴백 추천
