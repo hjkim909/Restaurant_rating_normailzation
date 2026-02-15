@@ -27,7 +27,7 @@
 - **Deployment**: **Render** Web Service (uvicorn 직접 실행)
 - **Data Source**: Naver Search API (Primary), Kakao Local API (Secondary)
 - **Caching**: SQLite (`mechu_cache.db`) - 동일 쿼리 24시간 캐싱으로 API 호출 절감
-- **AI**: Gemini 1.5 Flash (Google Search Grounding) - 상황 기반 메뉴 추천
+- **AI**: Gemini 2.0 Flash Lite (Google Search Grounding + 경량 JSON 모드) - 상황 기반 메뉴 추천
 
 ### Frontend (`/frontend`)
 - **Framework**: React 18 (Vite)
@@ -49,9 +49,12 @@
 3.  **Vercel 배포**: `frontend/vercel.json`으로 SPA 설정. GitHub 연동.
 
 ### ⚠️ AI 모드 (Gemini) - 주의사항
-- 사용 모델: `gemini-flash-latest` (Google Search Grounding 활용)
-- **중요**: `GoogleSearch` Tool과 `response_mime_type="application/json"`은 **동시에 사용할 수 없음** (400 Error).
-  - 해결: `_parse_json_from_text()` 헬퍼로 텍스트에서 JSON 수동 파싱.
+- 사용 모델: `gemini-2.0-flash-lite` (무료 쿼타 높음: 15 RPM, 1000 RPD)
+- **2단계 fallback 전략**: GoogleSearch 모드 → 경량 JSON 모드 → static fallback
+  - 1차: GoogleSearch Tool로 리뷰 검색 + 분석 (고품질)
+  - 2차: GoogleSearch 없이 식당 목록만으로 AI 분석 (쿼타 절약)
+  - 3차: AI 없이 거리+평점+카테고리 기반 static 추천
+- **중요**: `GoogleSearch` Tool과 `response_mime_type="application/json"`은 동시 사용 불가 (400 Error).
 - 역할: 네이버 플레이스 리뷰를 분석하여 "오늘 속이 안 좋아" 같은 상황에 맞는 메뉴 추천.
 
 ### 좌표계 이슈 (Coordinate System)
@@ -105,7 +108,11 @@ uvicorn fastapi_app.main:app --reload
     - **원인**: `google-genai` 크로스 컴파일 문제 + Lambda 용량/타임아웃 제한 + GoogleSearch Tool 호환성 버그.
     - **해결**: AWS 인프라 전체 제거, Render(백엔드) + Vercel(프론트엔드)로 전환.
     - **상세**: [docs/MIGRATION_AWS_TO_RENDER.md](docs/MIGRATION_AWS_TO_RENDER.md) 참조.
-    - **상태**: ✅ 코드 변경 완료, 배포 진행 중.
+    - **상태**: ✅ 배포 완료 (Backend: Render, Frontend: Vercel).
+- **2026-02-15 (Fix)**: AI 미식가 429 RESOURCE_EXHAUSTED 에러 수정.
+    - **원인**: Gemini API 무료 쿼타(1000 RPD) 소진 + fallback 품질 낮음.
+    - **해결**: 2단계 AI fallback 전략 구현 + 경량 JSON 모드 + 거리/평점 기반 static fallback.
+    - **프론트엔드**: axios 60초 타임아웃 + 에러 핸들링 개선.
 
 ## 7. 주요 파일 구조
 - `render.yaml`: Render 배포 Blueprint (백엔드).
