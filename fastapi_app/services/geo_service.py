@@ -1,15 +1,43 @@
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
+import requests
 import ssl
 import certifi
+from fastapi_app.core.config import get_settings
 
 class GeoService:
     def __init__(self):
+        self.settings = get_settings()
+        # Fix for SSL certificate errors
         # Fix for SSL certificate errors
         ctx = ssl.create_default_context(cafile=certifi.where())
         self.geolocator = Nominatim(user_agent="lunch_picker_app_v2", ssl_context=ctx)
 
     def get_address_from_coords(self, lat: float, lng: float) -> str | None:
+        if self.settings.KAKAO_REST_API_KEY:
+            try:
+                url = "https://dapi.kakao.com/v2/local/geo/coord2regioncode.json"
+                headers = {"Authorization": f"KakaoAK {self.settings.KAKAO_REST_API_KEY}"}
+                params = {"x": lng, "y": lat}
+                resp = requests.get(url, headers=headers, params=params, timeout=5)
+                
+                if resp.status_code == 200:
+                    data = resp.json()
+                    documents = data.get('documents', [])
+                    if documents:
+                        # Find the administrative region (H region)
+                        for doc in documents:
+                            if doc.get('region_type') == 'H': # 행정동
+                                dong = doc.get('region_3depth_name') # e.g., 역삼1동
+                                gu = doc.get('region_2depth_name')   # e.g., 강남구
+                                return dong if dong else gu
+
+                        # Fallback to legal region (B region)
+                        return documents[0].get('region_3depth_name') or documents[0].get('region_2depth_name')
+            except Exception as e:
+                print(f"Kakao Geocoding Error: {e}")
+
+        # Fallback to Nominatim
         try:
             location = self.geolocator.reverse((lat, lng), exactly_one=True, language='ko')
             if location:
@@ -26,7 +54,7 @@ class GeoService:
                 
                 return location.address.split(',')[0]
         except Exception as e:
-            print(f"Geocoding Error: {e}")
+            print(f"Nominatim Geocoding Error: {e}")
             return None
         return None
 
