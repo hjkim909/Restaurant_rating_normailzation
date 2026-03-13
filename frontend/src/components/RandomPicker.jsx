@@ -94,8 +94,8 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                 <button
                     onClick={() => { setMode('restaurant'); handleReset(); }}
                     className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-1.5 transition-colors ${mode === 'restaurant'
-                            ? 'bg-white text-orange-600 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white text-orange-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
                     <Store className="w-4 h-4" />
@@ -104,8 +104,8 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                 <button
                     onClick={() => { setMode('menu'); handleReset(); }}
                     className={`flex-1 py-2 px-3 rounded-md text-sm font-bold flex items-center justify-center gap-1.5 transition-colors ${mode === 'menu'
-                            ? 'bg-white text-orange-600 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white text-orange-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
                     <UtensilsCrossed className="w-4 h-4" />
@@ -120,7 +120,7 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                         <button
                             onClick={handlePickRestaurant}
                             disabled={!items.length}
-                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3.5 rounded-2xl font-bold text-lg shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             <Ticket className="w-5 h-5" />
                             랜덤 가게 뽑기
@@ -128,7 +128,7 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                     )}
 
                     {(selectedItem || isAnimating) && (
-                        <div className="bg-white rounded-xl shadow-lg border border-orange-100 p-6 text-center animate-in fade-in zoom-in duration-300">
+                        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-black/5 border border-white p-7 text-center animate-in fade-in zoom-in-95 duration-400">
                             {isAnimating ? (
                                 <div className="flex flex-col items-center justify-center py-4">
                                     <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-2" />
@@ -147,7 +147,7 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                                     <p className="text-gray-600 mb-4">{selectedItem.category}</p>
 
                                     {selectedItem.lat && selectedItem.lng && (
-                                        <div className="rounded-xl overflow-hidden shadow-inner border border-gray-200 mt-2 mb-4">
+                                        <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 mt-4 mb-5">
                                             <KakaoMap
                                                 center={{ lat: selectedItem.lat, lng: selectedItem.lng }}
                                                 userLocation={userLocation}
@@ -190,7 +190,7 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                     {!selectedMenu && !isAnimating && (
                         <button
                             onClick={handlePickMenu}
-                            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
+                            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3.5 rounded-2xl font-bold text-lg shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                         >
                             <UtensilsCrossed className="w-5 h-5" />
                             랜덤 메뉴 뽑기
@@ -198,7 +198,7 @@ export default function RandomPicker({ items, userLocation, onSearchMenu }) {
                     )}
 
                     {(selectedMenu || isAnimating) && (
-                        <div className="bg-white rounded-xl shadow-lg border border-pink-100 p-6 text-center animate-in fade-in zoom-in duration-300">
+                        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-black/5 border border-white p-7 text-center animate-in fade-in zoom-in-95 duration-400">
                             {isAnimating ? (
                                 <div className="flex flex-col items-center justify-center py-4">
                                     <Loader2 className="w-8 h-8 text-pink-500 animate-spin mb-2" />

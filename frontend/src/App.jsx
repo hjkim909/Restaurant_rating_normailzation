@@ -138,11 +138,11 @@ function App() {
   }, [results, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20 selection:bg-orange-100 selection:text-orange-900">
       {/* Hero Section */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-white/70 backdrop-blur-lg shadow-sm sticky top-0 z-50 border-b border-white/20">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-orange-600 flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500 flex items-center gap-2 tracking-tight">
             <Utensils className="w-6 h-6" />
             Mechu
           </h1>
@@ -171,7 +171,7 @@ function App() {
             {/* Location Button (Separate) */}
             <button
               onClick={handleLocationClick}
-              className="w-full bg-white border border-orange-200 text-orange-600 font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-colors shadow-sm"
+              className="w-full bg-white border border-orange-100 text-orange-600 font-medium py-3 px-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-50/50 hover:border-orange-200 hover:shadow-md active:scale-[0.98] transition-all duration-200 shadow-sm"
             >
               <MapPin className="w-5 h-5" />
               현재 내 위치 주변 맛집 찾기
@@ -182,7 +182,7 @@ function App() {
               <input
                 type="text"
                 placeholder="강남역 맛집, 오늘 뭐 먹지?"
-                className="w-full pl-10 pr-16 py-3 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                className="w-full pl-10 pr-16 py-3.5 rounded-2xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-orange-500/10 focus:border-orange-400 outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -191,7 +191,7 @@ function App() {
               <button
                 type="submit"
                 disabled={loading}
-                className="absolute right-2 top-2 bg-gray-900 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-black transition-colors disabled:opacity-50"
+                className="absolute right-2 top-2 bottom-2 bg-gray-900 text-white px-5 rounded-xl text-sm font-semibold hover:bg-gray-800 active:scale-95 transition-all duration-200 disabled:opacity-50"
               >
                 검색
               </button>
@@ -206,7 +206,7 @@ function App() {
                   </span>
                   <button
                     onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
-                    className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50"
+                    className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-sm font-medium shadow-sm hover:shadow-md hover:border-gray-300 transition-all active:scale-95"
                   >
                     {viewMode === 'list' ? <MapIcon className="w-4 h-4" /> : <ListIcon className="w-4 h-4" />}
                     {viewMode === 'list' ? '지도 보기' : '리스트 보기'}
@@ -226,11 +226,11 @@ function App() {
                 {viewMode === 'list' ? (
                   <div className="space-y-4">
                     {filteredResults.map((place, index) => (
-                      <div key={index} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => window.open(place.link || `https://map.naver.com/v5/search/${place.title}`, '_blank')}>
+                      <div key={index} className="bg-white/80 backdrop-blur-sm p-4.5 rounded-2xl shadow-sm border border-gray-100 flex gap-4 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 cursor-pointer group" onClick={() => window.open(place.link || `https://map.naver.com/v5/search/${place.title}`, '_blank')}>
                         <div className="flex-1">
-                          <div className="flex justify-between items-start mb-1">
+                          <div className="flex justify-between items-start mb-1.5">
                             <div className="flex items-center gap-2 overflow-hidden">
-                              <h3 className="font-bold text-lg text-gray-900 truncate" dangerouslySetInnerHTML={{ __html: place.title }} />
+                              <h3 className="font-bold text-[17px] text-gray-900 truncate group-hover:text-orange-600 transition-colors" dangerouslySetInnerHTML={{ __html: place.title }} />
                               <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md whitespace-nowrap">{place.category}</span>
                             </div>
                             <span className="text-sm font-semibold text-orange-500 flex items-center gap-1 flex-shrink-0">

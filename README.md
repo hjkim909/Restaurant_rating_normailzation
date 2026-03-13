@@ -17,11 +17,11 @@
 - **Backend**: FastAPI, Python 3.10
 - **Cloud**: AWS Lambda (Serverless Framework), API Gateway, S3 + CloudFront
 
-[![Live Demo](https://img.shields.io/badge/demo-active-success)](https://d295iyxb2t8br9.cloudfront.net)
+[![Live Demo](https://img.shields.io/badge/demo-active-success)](https://frontend-chi-sepia-31.vercel.app)
 
 ## 🚀 Live Demo
-**[오늘 뭐 먹지? 바로가기](https://d295iyxb2t8br9.cloudfront.net)**
-*(주의: AWS 비용 절감을 위해 서버가 잠시 중단되었을 수 있습니다.)*
+**[오늘 뭐 먹지? 바로가기](https://frontend-chi-sepia-31.vercel.app)**
+*(주의: 무료 호스팅(Render)의 특성상 첫 접속 시 서버가 켜지는 데 약 30~50초 정도 소요될 수 있습니다.)*
 ## 🚀 시작하기 (Getting Started)
 
 ### 1. Backend (FastAPI)

@@ -12,9 +12,11 @@ export default function KakaoMap({ center, items, className, userLocation }) {
 
     const [selectedMarker, setSelectedMarker] = useState(null);
 
-    if (!import.meta.env.VITE_KAKAO_JS_KEY) {
+    const isKakaoReady = typeof window !== 'undefined' && window.kakao && window.kakao.maps;
+
+    if (!import.meta.env.VITE_KAKAO_JS_KEY && !isKakaoReady) {
         return (
-            <div className={`flex flex-col items-center justify-center bg-gray-100 rounded-xl p-6 text-center ${className}`} style={{ height: '300px' }}>
+            <div className={`flex flex-col items-center justify-center bg-gray-100 rounded-xl p-6 text-center shadow-inner border border-gray-200 ${className}`} style={{ height: '300px' }}>
                 <AlertTriangle className="w-10 h-10 text-yellow-500 mb-2" />
                 <h3 className="text-lg font-bold text-gray-800">지도를 불러올 수 없습니다</h3>
                 <p className="text-sm text-gray-600 mt-1">.env 파일에 VITE_KAKAO_JS_KEY를 설정해주세요.</p>
@@ -22,8 +24,8 @@ export default function KakaoMap({ center, items, className, userLocation }) {
         );
     }
 
-    if (loading) return <div className={`bg-gray-100 animate-pulse rounded-xl ${className}`} style={{ height: '300px' }} />;
-    if (error) {
+    if (loading && !isKakaoReady) return <div className={`bg-gray-100 animate-pulse rounded-2xl ${className}`} style={{ height: '300px' }} />;
+    if (error && !isKakaoReady) {
         console.error("Kakao Map Load Error:", error);
         return (
             <div className={`flex flex-col items-center justify-center bg-gray-100 rounded-xl p-6 text-center ${className}`} style={{ height: '300px' }}>
@@ -36,7 +38,7 @@ export default function KakaoMap({ center, items, className, userLocation }) {
     return (
         <Map
             center={center || { lat: 37.5665, lng: 126.9780 }}
-            style={{ width: "100%", height: "300px", borderRadius: "12px" }}
+            style={{ width: "100%", height: "300px", borderRadius: "16px" }}
             level={3}
             className={className}
         >

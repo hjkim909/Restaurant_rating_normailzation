@@ -66,10 +66,10 @@ export default function AIView({ location }) {
 
     return (
         <div className="space-y-6">
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100">
-                <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-indigo-600" />
-                    <h2 className="font-bold text-lg text-gray-800">AI 미식가</h2>
+            <div className="bg-gradient-to-br from-indigo-50/80 via-white/80 to-purple-50/80 backdrop-blur-md p-6 rounded-3xl border border-indigo-100/50 shadow-lg shadow-indigo-900/5">
+                <div className="flex items-center gap-2 mb-5">
+                    <Sparkles className="w-6 h-6 text-indigo-500" />
+                    <h2 className="font-extrabold text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">AI 미식가</h2>
                 </div>
 
                 {/* 상황 프리셋 버튼 */}
@@ -80,9 +80,9 @@ export default function AIView({ location }) {
                             <button
                                 key={idx}
                                 onClick={() => setContext(preset.context)}
-                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${context === preset.context
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                className={`flex-shrink-0 px-4 py-2 rounded-2xl text-[15px] font-semibold transition-all duration-200 active:scale-95 ${context === preset.context
+                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-200 border-transparent'
+                                    : 'bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/80 hover:text-indigo-700 hover:shadow-sm'
                                     }`}
                             >
                                 {preset.emoji} {preset.label}
@@ -99,9 +99,9 @@ export default function AIView({ location }) {
                             <button
                                 key={num}
                                 onClick={() => setPartySize(partySize === num ? null : num)}
-                                className={`w-10 h-10 rounded-full text-sm font-bold transition-all ${partySize === num
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50'
+                                className={`w-11 h-11 rounded-2xl text-[15px] font-bold transition-all duration-200 active:scale-95 flex items-center justify-center ${partySize === num
+                                    ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-200 border-transparent'
+                                    : 'bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/80 hover:text-indigo-700 hover:shadow-sm'
                                     }`}
                             >
                                 {num}
@@ -112,7 +112,7 @@ export default function AIView({ location }) {
                 </div>
 
                 <textarea
-                    className="w-full p-4 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none bg-white text-gray-800 h-24"
+                    className="w-full p-4 rounded-2xl border border-indigo-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 outline-none resize-none bg-white/80 backdrop-blur-sm text-gray-800 h-28 shadow-sm transition-all duration-300"
                     placeholder="상황을 자유롭게 설명하거나 위의 빠른 선택을 눌러보세요!"
                     value={context}
                     onChange={(e) => setContext(e.target.value)}
@@ -122,7 +122,7 @@ export default function AIView({ location }) {
                     <button
                         onClick={handleAnalyze}
                         disabled={loading || (!context && !partySize)}
-                        className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm shadow-indigo-200"
+                        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3.5 rounded-2xl font-bold hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {loading ? (
                             <>
@@ -131,7 +131,7 @@ export default function AIView({ location }) {
                             </>
                         ) : (
                             <>
-                                <Sparkles className="w-4 h-4" />
+                                <Sparkles className="w-5 h-5" />
                                 AI 분석 시작
                             </>
                         )}
@@ -140,11 +140,11 @@ export default function AIView({ location }) {
             </div>
 
             {aiResult && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Conversational Response */}
-                    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex gap-4">
-                        <div className="min-w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <MessageSquare className="w-5 h-5 text-indigo-600" />
+                    <div className="bg-white/90 backdrop-blur-sm p-5 rounded-3xl border border-indigo-100 shadow-lg shadow-indigo-900/5 flex gap-4 my-2">
+                        <div className="min-w-[44px] h-[44px] rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-inner shadow-white/30">
+                            <MessageSquare className="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <p className="text-gray-800 leading-relaxed font-medium">
@@ -154,22 +154,25 @@ export default function AIView({ location }) {
                     </div>
 
                     {/* Recommendations */}
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                         {aiResult.recommendations.map((rec, idx) => (
-                            <div key={idx} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex justify-between items-start mb-3">
-                                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                        <span className="text-indigo-600">#{idx + 1}</span>
+                            <div key={idx} className="bg-white/90 backdrop-blur-sm p-6 rounded-3xl border border-transparent shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 hover:border-indigo-100 transition-all duration-300 group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 to-purple-500">#{idx + 1}</span>
                                         {rec.menu}
                                     </h3>
-                                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                    <span className="bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-100 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm">
                                         <ThumbsUp className="w-3 h-3" />
                                         신뢰도 {Math.round(rec.confidence * 100)}%
                                     </span>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 mb-4 leading-relaxed">
-                                    <p className="font-medium text-indigo-900 mb-1">💡 추천 이유</p>
+                                <div className="bg-gray-50/80 p-5 rounded-2xl text-[15px] text-gray-700 mb-5 leading-relaxed border border-gray-100/50">
+                                    <p className="font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
+                                        <Sparkles className="w-4 h-4 text-indigo-500" />
+                                        추천 이유
+                                    </p>
                                     {rec.reasoning}
                                 </div>
 

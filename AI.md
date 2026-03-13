@@ -6,7 +6,7 @@
 - **서비스명**: "Mechu" (구: 오늘 뭐 먹지?)
 - **목표**: 결정 장애를 겪는 직장인을 위해 현재 위치 기반으로 '실제 먹을 수 있는' 점심 메뉴를 추천합니다.
 - **핵심 철학**: Restaurant-First가 아닌 **Menu-First** 접근. (식당을 찾고 메뉴를 보는 게 아니라, 메뉴를 고르면 식당을 알려줌)
-- **Live Demo**: (Render + Vercel 배포 예정)
+- **Live Demo**: [https://frontend-chi-sepia-31.vercel.app](https://frontend-chi-sepia-31.vercel.app) (Render + Vercel 배포 완료)
 - **신규 기능 (2026-01)**:
     - **장르 필터링**: "한식", "일식" 등 카테고리별 보기.
     - **랜덤 메뉴**: 결정 장애 해결을 위한 뽑기 기능.
@@ -113,6 +113,9 @@ uvicorn fastapi_app.main:app --reload
     - **원인**: Gemini API 무료 쿼타(1000 RPD) 소진 + fallback 품질 낮음.
     - **해결**: 2단계 AI fallback 전략 구현 + 경량 JSON 모드 + 거리/평점 기반 static fallback.
     - **프론트엔드**: axios 60초 타임아웃 + 에러 핸들링 개선.
+- **2026-03-XX (Design & Fix)**: 프론트엔드 전체 UI 프리미엄 리뉴얼 및 KakaoMap 충돌 에러 픽스.
+    - **디자인 개선**: Pretendard 폰트 도입, 헤더 및 모달 등에 배경 블러(Glassmorphism) 스며듦 처리, 카드 Hover 입체 애니메이션 추가, 단색 버튼들을 부드러운 투톤 그라데이션으로 격상.
+    - **버그 픽스**: 랜덤 뽑기 결과 내 카카오맵 로드 시 "지도를 로드하는 중 오류가 발생했습니다" 에러 해결. (윈도우 전역 객체 체킹 로직 추가 우회)
 
 ## 7. 주요 파일 구조
 - `render.yaml`: Render 배포 Blueprint (백엔드).
